@@ -213,7 +213,7 @@ export default function Home() {
 
         <section className="dark-section abilities-section">
           <div className="section-kicker yellow">REIMON&apos;S ABILITY</div>
-          <h2>青木は、だいたい<br /><em>何でも作る。</em></h2>
+          <h2>レイモンは、だいたい<br /><em>何でも作る。</em></h2>
           <div className="ability-grid">
             <article><b>01</b><h3>Webアプリ</h3><p><strong>忙しいから人を増やそうとしているそこのあなた</strong><br />人を増やす前に、その仕事自体を減らすシステム、作っちゃいます！</p></article>
             <article><b>02</b><h3>Webサイト</h3><p><strong>求人でうまくいっていないそこのあなた</strong><br />ぶっ飛んだ、見たことない世界観で求職者がワクワクする採用のホームページ、作っちゃいます！</p></article>
