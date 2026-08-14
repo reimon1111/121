@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { flushSync } from "react-dom";
 
 const careers = [
   { no: "01", place: "長野", title: "1987年 9月24日 長野県に爆誕", note: "この時点では、まだ小栗一瞬ではない。", src: "/images/timeline-birth.jpeg", alt: "青木玲門の誕生を表現した画像" },
-  { no: "02", place: "東京", title: "デザイン専門学校 2年", note: "センスを学ぶ。でも、面白さだけは授業では教えてくれなかった。", src: "/images/timeline-design-school-drawing.png", alt: "デザイン学校で石膏デッサンをする青木玲門" },
-  { no: "03", place: "神奈川", title: "ダーツマシン営業 3年", note: "狙う・刺す・売る。営業力を矢で習得。", src: "/images/timeline-darts-sales.png", alt: "ダーツを大きく外す青木玲門" },
+  { no: "02", place: "東京", title: "デザイン専門学校 2年", note: "デッサンを学ぶ。なお、才能は最後まで輪郭を見せなかった。", src: "/images/timeline-design-school-drawing.png", alt: "デザイン学校で石膏デッサンをする青木玲門" },
+  { no: "03", place: "神奈川", title: "ダーツマシン営業 3年", note: "ダーツマシンを売りながら営業力を習得。的に刺す技術だけは未実装。", src: "/images/timeline-darts-sales.png", alt: "ダーツを大きく外す青木玲門" },
   { no: "04", place: "東京", title: "Web制作会社 4年", note: "Web制作の基礎を叩き込まれる。締切という名の敵と毎日戦う。", src: "/images/timeline-web-company.jpg", alt: "Web制作会社時代を表現したパロディ画像", contain: true },
-  { no: "05", place: "長野", title: "パチンコ店 広告宣伝課 4年", note: "派手なデザインは正義。「もっと目立て」が口ぐせになる。", src: "/images/timeline-pachinko-cr-aoki-reimon.png", alt: "架空のパチンコ台CR青木玲門" },
+  { no: "05", place: "長野", title: "パチンコ店 広告宣伝課 4年", note: "派手なデザインは正義。最終的に、自分自身をパチンコ台にした。", src: "/images/timeline-pachinko-cr-aoki-reimon.png", alt: "架空のパチンコ台CR青木玲門" },
   { no: "06", place: "現在", title: "ボーダレスとして独立", note: "Webもアプリも、仕事も笑いも境界なし。", src: "/images/timeline-borderless-independent.png", alt: "独立後すべての業務を一人で担当する青木玲門", current: true },
 ];
 
@@ -51,7 +52,7 @@ const gains = [
     japanese: "実績",
     stamp: "前科あり",
     items: [
-      "竜胆チャプターでコンプライアンス違反しまくりの画像を作りまくり、定例会を盛り上げた。本部からコンプライアンス違反で怒られた。",
+      "竜胆チャプターでコンプライアンスの限界に挑む画像を量産し、定例会を盛り上げた。最終的にBNI本部から正式に怒られた。",
       "「才能の無駄遣い」という最高級の褒め言葉を多数受賞",
     ],
   },
@@ -206,7 +207,7 @@ export default function Home() {
   return (
     <main>
       <div className="breaking-news" aria-label="お知らせ">
-        <div className="ticker"><span>BNI速報｜竜胆チャプターで「小栗旬に一瞬だけ似ている男」を観測　カテゴリーは人手不足対策DXアドバイザー　夏場だけ異常にモテる(虫に)</span></div>
+        <div className="ticker"><span>BNI速報｜竜胆チャプターで「小栗旬に一瞬だけ似ている男」を観測　カテゴリーは人手不足対策DXアドバイザー　夏場だけ異常にモテる（虫に）</span></div>
       </div>
 
       <div className="star-field" aria-hidden="true"><i /><i /><i /></div>
@@ -242,16 +243,18 @@ export default function Home() {
           <div className="hero-details">
             <div className="bni-history">
               <span>BNI</span>
-              <strong>長野リージョン 竜胆(リンドウ)チャプター所属</strong>
+              <strong>長野リージョン 竜胆（リンドウ）チャプター所属</strong>
               <small suppressHydrationWarning>入会日 2021年8月 ／ BNI歴 {bniYear}年目</small>
             </div>
             <p className="hero-lead"><span>カテゴリー</span><strong>人手不足対策DXアドバイザー</strong></p>
-            <div className="hero-actions">
-              <a className="primary-button" href="#who">青木の取扱説明書を開く</a>
-              <a className="secondary-button" href="#oguri-judge">小栗度を判定する</a>
-            </div>
+            <p className="hero-business-copy">
+              人を増やす前に、無駄な仕事を減らす。<br />
+              少人数でも回る会社の仕組みをつくります。
+            </p>
           </div>
-          <div className="scroll-note">SCROLLすると人間性がバレます ↓</div>
+          <a href="#who" className="scroll-note" aria-label="青木玲門の紹介へ移動">
+            SCROLLすると人間性がバレます ↓
+          </a>
         </section>
 
         <section className="paper-section intro-section" id="who">
@@ -262,8 +265,15 @@ export default function Home() {
               <img src="/images/reimon-detective.jpg" alt="電柱の陰で双眼鏡と焼きそばパンを持って張り込む青木玲門" />
             </div>
             <div className="profile-copy">
-              <p className="big-copy">Webも、アプリも、ロゴも、紙も。<br /><mark>面白さと使いやすさを、まとめて設計。</mark></p>
-              <p>長野市を拠点に、Webサイト制作・Webアプリ開発・ロゴ・チラシ・名刺・動画まで、境界なくつくるデザイナー。デザイン歴は11年超。独立後は「ボーダレス」として、企業の魅力と未来の出会いをつないでいます。</p>
+              <p className="big-copy">
+                ムダな仕事も、採用の悩みも、会社の見せ方も。<br />
+                <mark>システムとデザインで、まとめて整えます。</mark>
+              </p>
+              <p className="intro-bio">
+                <span>長野市を拠点に、業務改善システム・採用ホームページ・企業ブランディングを手がけています。</span>
+                <span>業務の整理からデザイン、実装まで一貫して対応し、少人数でも回る会社の仕組みをつくります。</span>
+                <span>デザイン歴は11年超。現在は「ボーダレス」として活動しています。</span>
+              </p>
               <dl className="quick-profile">
                 <div className="profile-primary"><dt>屋号</dt><dd>ボーダレス</dd></div>
                 <div className="profile-primary"><dt>生年月日</dt><dd>1987.09.24</dd></div>
@@ -283,6 +293,12 @@ export default function Home() {
                 <span>緊急検証資料</span>
                 <strong>顔面比較ファイル</strong>
               </div>
+
+              <h3 className="judge-comparison-claim">
+                本人は、
+                <strong>小栗旬に似ている</strong>
+                <span>と言い張っています。</span>
+              </h3>
 
               <div className="judge-photo-grid">
                 <figure className="judge-photo-card judge-photo-reimon">
@@ -337,6 +353,74 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="dark-section abilities-section" id="business">
+          <div className="section-kicker yellow">REIMON&apos;S BUSINESS</div>
+          <h2>
+            で、結局<br />
+            <em>何屋なんだよ？</em>
+          </h2>
+          <p className="ability-intro">
+            会社の「ムダ・採用・見せ方」を、<br />
+            システムとデザインで整える人です。
+          </p>
+          <div className="ability-grid">
+            <article>
+              <span className="service-label">SYSTEM</span>
+              <h3>業務改善システム</h3>
+              <div className="service-image">
+                <Image
+                  src="/images/services/service-business-improvement-system-v4.png"
+                  alt="無駄な仕事を業務改善システムで整理する青木玲門"
+                  width={1536}
+                  height={1024}
+                  sizes="(max-width: 900px) 100vw, 360px"
+                />
+              </div>
+              <strong className="service-catch">人を増やす前に、まず仕事を減らす。</strong>
+              <p className="service-description">入力・集計・確認・情報共有などのムダな作業をシステム化。少人数でも現場が回る仕組みをつくります。</p>
+              <p className="service-note">新しく人を採用する前に、その仕事自体を減らせないか、一度ご相談ください。</p>
+            </article>
+            <article>
+              <span className="service-label">RECRUIT</span>
+              <h3>採用ホームページ</h3>
+              <div className="service-image">
+                <Image
+                  src="/images/services/service-recruitment-website-v2.png"
+                  alt="さまざまな職種の青木玲門が登場する採用ホームページ"
+                  width={1536}
+                  height={1024}
+                  sizes="(max-width: 900px) 100vw, 360px"
+                />
+              </div>
+              <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
+              <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
+              <p className="service-note">普通の採用サイトは、たぶん作りません。</p>
+            </article>
+            <article>
+              <span className="service-label">BRANDING</span>
+              <h3>企業ブランディング</h3>
+              <div className="service-image">
+                <Image
+                  src="/images/services/service-corporate-branding.png"
+                  alt="ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング"
+                  width={1536}
+                  height={1024}
+                  sizes="(max-width: 900px) 100vw, 360px"
+                />
+              </div>
+              <strong className="service-catch">いい会社なのに、見せ方で損していませんか？</strong>
+              <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
+              <p className="service-note">爪痕は残します。遺恨は残さないよう努力します。</p>
+            </article>
+          </div>
+          <div className="power-meter">
+            <div><span>デザイン</span><i style={{ width: "94%" }} /><b>94</b></div>
+            <div><span>アプリ</span><i style={{ width: "98%" }} /><b>98</b></div>
+            <div><span>筋トレ</span><i style={{ width: "63%" }} /><b>63</b></div>
+            <div><span>変態</span><i className="over" style={{ width: "100%" }} /><b>120</b></div>
+          </div>
+        </section>
+
         <section className="paper-section one-to-one" id="one-to-one">
           <div className="section-kicker">HOW TO 1to1 WITH REIMON</div>
           <h2>青木玲門との1to1<br /><em>攻略マニュアル。</em></h2>
@@ -357,7 +441,7 @@ export default function Home() {
             <article>
               <img src="/images/one-to-one-serious.png" alt="真剣に話を聞いてメモを取っている様子" />
               <h3>とかいって意外と真面目</h3>
-              <p>是非お悩みを教えてください。<br />私の人脈で解決できそうな方お繋ぎします！</p>
+              <p>ぜひ、お悩みを教えてください。<br />私の人脈の中にお役に立てそうな方がいれば、おつなぎします！</p>
             </article>
           </div>
           <blockquote>「強い願望は、HENTAIを極めること。<br />ただし仕事は、びっくりするほど真面目。」</blockquote>
@@ -455,51 +539,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="dark-section abilities-section">
-          <div className="section-kicker yellow">REIMON&apos;S BUSINESS</div>
-          <h2>
-            で、結局<br />
-            <em>何屋なんだよ？</em>
-          </h2>
-          <p className="ability-intro">
-            会社の「ムダ・採用・見せ方」を、<br />
-            システムとデザインで整える人です。
-          </p>
-          <div className="ability-grid">
-            <article>
-              <span className="service-label">SYSTEM</span>
-              <h3>業務改善システム</h3>
-              <strong className="service-catch">人を増やす前に、まず仕事を減らす。</strong>
-              <p className="service-description">入力・集計・確認・情報共有などのムダな作業をシステム化。少人数でも現場が回る仕組みをつくります。</p>
-              <p className="service-note">新しく人を採用する前に、その仕事自体を減らせないか、一度ご相談ください。</p>
-            </article>
-            <article>
-              <span className="service-label">RECRUIT</span>
-              <h3>採用ホームページ</h3>
-              <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
-              <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
-              <p className="service-note">普通の採用サイトは、たぶん作りません。</p>
-            </article>
-            <article>
-              <span className="service-label">BRANDING</span>
-              <h3>企業ブランディング</h3>
-              <strong className="service-catch">いい会社なのに、見せ方で損していませんか？</strong>
-              <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
-              <p className="service-note">爪痕は残します。遺恨は残さないよう努力します。</p>
-            </article>
-          </div>
-          <div className="power-meter">
-            <div><span>デザイン</span><i style={{ width: "94%" }} /><b>94</b></div>
-            <div><span>アプリ</span><i style={{ width: "98%" }} /><b>98</b></div>
-            <div><span>筋トレ</span><i style={{ width: "63%" }} /><b>63</b></div>
-            <div><span>変態</span><i className="over" style={{ width: "100%" }} /><b>120</b></div>
-          </div>
-        </section>
-
         <section className="paper-section works-section" id="works">
           <div className="section-kicker">TOP SECRET ARCHIVES</div>
           <h2>過去に作って、<br /><em>お蔵入りになった作品。</em></h2>
-          <p className="section-lead">竜胆チャプターのメンバーの宣材写真を勝手にふざけた画像に加工し、定例会でサプライズ発表していた作品たちです。<br /><br />しかし、BNI本部から「コンプライアンス上問題がある」と厳重注意をされ、残念ながらすべてお蔵入りとなりました…。</p>
+          <p className="section-lead">竜胆チャプターのメンバーの宣材写真を、勝手に（愛を込めて）ふざけた画像へ加工し、定例会でサプライズ発表していた作品たちです。<br /><br />しかし、BNI本部から正式にストップが入り、残念ながら全作品がお蔵入りとなりました…。</p>
 
           <div className="work-gallery">
             <div ref={workSelectorRef} className="work-selector">
@@ -575,7 +618,7 @@ export default function Home() {
 
         <section className="evolution-section">
           <span className="next-badge">CURRENT MISSION</span>
-          <p>青木玲門の、現在の使命。</p>
+          <p>3つの仕事の中でも、現在もっとも力を入れている領域。</p>
           <h2>人手不足対策<br /><strong>DXアドバイザー</strong></h2>
           <div className="evolution-line">人を増やす前に、無駄な仕事を減らす。</div>
           <p className="evolution-copy">システムありきではなく、まず業務を整理する。なくせる仕事・まとめられる仕事・自動化できる仕事を見つけ、必要な部分だけを現場で使える仕組みにします。</p>
@@ -584,7 +627,7 @@ export default function Home() {
 
         <section className="referral-section" id="referral">
           <div className="section-kicker">REFERRAL REQUEST</div>
-          <h2>青木 玲門に紹介してほしいのは、<br /><em>こんな経営者です。</em></h2>
+          <h2>青木玲門に紹介してほしいのは、<br /><em>こんな経営者です。</em></h2>
 
           <div className="referral-target">
             <span>最優先で紹介してほしい人</span>
@@ -592,7 +635,7 @@ export default function Home() {
           </div>
 
           <div className="referral-signals">
-            <h3>この言葉を聞いたら<br />青木 玲門召喚の合図です。</h3>
+            <h3>この言葉を聞いたら<br />青木玲門召喚の合図です。</h3>
             <div className="referral-tags">
               {summons.map((signal, index) => (
                 <span key={signal} style={{ transform: `rotate(${index % 2 ? 1.5 : -1.5}deg)` }}>{signal}</span>
@@ -612,8 +655,8 @@ export default function Home() {
                 <p>「入力や集計などの事務作業です」</p>
               </article>
             </div>
-            <p className="referral-cue">その返答がきたら、青木 玲門の出番です。</p>
-            <blockquote>「人を増やす前に、その仕事自体を減らす仕組みを作っている青木 玲門さんがいるよ。一度話してみない？」</blockquote>
+            <p className="referral-cue">その返答がきたら、青木玲門の出番です。</p>
+            <blockquote>「人を増やす前に、その仕事自体を減らす仕組みを作っている青木玲門さんがいるよ。一度話してみない？」</blockquote>
           </div>
 
           <div className="referral-difficulty">
@@ -628,13 +671,13 @@ export default function Home() {
 
           <div className="referral-action">
             <span>NEXT ACTION</span>
-            <p>ご興味を持っていただけましたら、<br />その場で3人のLINEグループを作って<br />青木 玲門をご紹介ください。</p>
+            <p>ご興味を持っていただけましたら、<br />その場で3人のLINEグループを作って<br />青木玲門をご紹介ください。</p>
           </div>
 
           <div className="referral-close">
-            <h3>青木 玲門を理解したら、<br />次は誰かに紹介してください。</h3>
+            <h3>青木玲門を理解したら、<br />次は誰かに紹介してください。</h3>
             <p>紹介できそうな人を思い出せなかった方は、もう一度上からお読みください。</p>
-            <a href="#top" className="referral-back">もう一度、青木 玲門を理解する ↑</a>
+            <a href="#top" className="referral-back">もう一度、青木玲門を理解する ↑</a>
           </div>
         </section>
 
