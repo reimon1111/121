@@ -4,24 +4,24 @@ import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
 const careers = [
-  { no: "01", place: "長野", title: "1987年 9月24日 長野県に爆誕", note: "この時点では、まだ小栗一瞬ではない。" },
-  { no: "02", place: "東京", title: "デザイン専門学校 2年", note: "センスを学ぶ。でも、面白さだけは授業では教えてくれなかった。" },
-  { no: "03", place: "神奈川", title: "ダーツマシン営業 3年", note: "狙う・刺す・売る。営業力を矢で習得。" },
-  { no: "04", place: "東京", title: "Web制作会社 4年", note: "Web制作の基礎を叩き込まれる。締切という名の敵と毎日戦う。" },
-  { no: "05", place: "長野", title: "パチンコ店 広告宣伝課 4年", note: "派手なデザインは正義。「もっと目立て」が口ぐせになる。" },
-  { no: "06", place: "現在", title: "ボーダレスとして独立", note: "Webもアプリも、仕事も笑いも境界なし。" },
+  { no: "01", place: "長野", title: "1987年 9月24日 長野県に爆誕", note: "この時点では、まだ小栗一瞬ではない。", src: "/images/timeline-birth.jpeg", alt: "青木玲門の誕生を表現した画像" },
+  { no: "02", place: "東京", title: "デザイン専門学校 2年", note: "センスを学ぶ。でも、面白さだけは授業では教えてくれなかった。", src: "/images/timeline-design-school-drawing.png", alt: "デザイン学校で石膏デッサンをする青木玲門" },
+  { no: "03", place: "神奈川", title: "ダーツマシン営業 3年", note: "狙う・刺す・売る。営業力を矢で習得。", src: "/images/timeline-darts-sales.png", alt: "ダーツを大きく外す青木玲門" },
+  { no: "04", place: "東京", title: "Web制作会社 4年", note: "Web制作の基礎を叩き込まれる。締切という名の敵と毎日戦う。", src: "/images/timeline-web-company.jpg", alt: "Web制作会社時代を表現したパロディ画像", contain: true },
+  { no: "05", place: "長野", title: "パチンコ店 広告宣伝課 4年", note: "派手なデザインは正義。「もっと目立て」が口ぐせになる。", src: "/images/timeline-pachinko-cr-aoki-reimon.png", alt: "架空のパチンコ台CR青木玲門" },
+  { no: "06", place: "現在", title: "ボーダレスとして独立", note: "Webもアプリも、仕事も笑いも境界なし。", src: "/images/timeline-borderless-independent.png", alt: "独立後すべての業務を一人で担当する青木玲門", current: true },
 ];
 
 const works = [
-  { src: "/images/work-leon.jpg", title: "雑誌LEONに勝手に就任", tag: "紳士" },
-  { src: "/images/work-health.jpg", title: "健康は足元から。たぶん。", tag: "美容" },
-  { src: "/images/work-outrage.jpg", title: "全員悪人。本人だけ笑顔。", tag: "映画" },
-  { src: "/images/work-angel.jpg", title: "天使になった知人", tag: "神話" },
-  { src: "/images/work-topgun.jpg", title: "飛ばないトップガン", tag: "航空" },
-  { src: "/images/work-hentai.jpg", title: "間違いありません。", tag: "告白" },
-  { src: "/images/work-it.jpg", title: "そこ、ボウヤリトミックやらない？", tag: "恐怖" },
-  { src: "/images/work-support.jpg", title: "私が全力でサポートします", tag: "支援" },
-  { src: "/images/work-moon.jpg", title: "月にかわってお仕置きです", tag: "変身" },
+  { src: "/images/work-leon.jpg", title: "雑誌LEONの表紙に\n勝手に就任", tag: "紳士", category: "カテゴリー 店舗工事業 Wさん" },
+  { src: "/images/work-health.jpg", title: "健康は足元から。\nたぶん。", tag: "美容", category: "カテゴリー 女性専用インソール販売 Kさん" },
+  { src: "/images/work-outrage.jpg", title: "全員悪人。\n本人だけ笑顔。", tag: "映画", category: "カテゴリー 生命保険(法人) Mさん" },
+  { src: "/images/work-angel.jpg", title: "天使になったメンバー", tag: "神話", category: "カテゴリー 確定拠出年金 Kさん" },
+  { src: "/images/work-topgun.jpg", title: "飛ばないトップガン", tag: "航空", category: "カテゴリー 国産自動車整備 Kさん" },
+  { src: "/images/work-hentai.jpg", title: "間違いありません。\n変態です。", tag: "告白", category: "カテゴリー 車体整備士による車検整備 Kさん" },
+  { src: "/images/work-it.jpg", title: "そこのボウヤ\nリトミックやらない？", tag: "恐怖", category: "カテゴリー リトミック音楽講師 Iさん" },
+  { src: "/images/work-support.jpg", title: "私が全力でサポートします", tag: "支援", category: "ディレクター Yさん" },
+  { src: "/images/work-moon.jpg", title: "月にかわって\nお仕置きよ", tag: "変身", category: "カテゴリー 大人のメンズ脱毛 Mさん" },
 ];
 
 const topics = ["ふざけた企画", "マッチングアプリ", "お酒", "怒られた話", "レイモン教"];
@@ -113,10 +113,51 @@ export default function Home() {
   const [bniYear, setBniYear] = useState(getBniYear);
   const featuredWorkRef = useRef<HTMLDivElement>(null);
   const workSelectorRef = useRef<HTMLDivElement>(null);
+  const timelineLightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [timelineLightbox, setTimelineLightbox] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+    episode: string;
+  } | null>(null);
 
   useEffect(() => {
     setBniYear(getBniYear());
   }, []);
+
+  const closeTimelineLightbox = () => {
+    setTimelineLightbox(null);
+    window.requestAnimationFrame(() => {
+      timelineLightboxTriggerRef.current?.focus();
+    });
+  };
+
+  useEffect(() => {
+    if (!timelineLightbox) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeTimelineLightbox();
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [timelineLightbox]);
+
+  const openTimelineLightbox = (career: (typeof careers)[number], trigger: HTMLButtonElement) => {
+    timelineLightboxTriggerRef.current = trigger;
+    setTimelineLightbox({
+      src: career.src,
+      alt: career.alt,
+      title: career.title,
+      episode: `EPISODE ${career.no}`,
+    });
+  };
 
   const judge = (type: "yes" | "instant" | "no") => {
     const messages = {
@@ -237,7 +278,43 @@ export default function Home() {
           </div>
 
           <div className={`judge-box ${judgementType ? `judge-${judgementType}` : ""}`} id="oguri-judge">
+            <div className="judge-comparison">
+              <div className="judge-comparison-heading">
+                <span>緊急検証資料</span>
+                <strong>顔面比較ファイル</strong>
+              </div>
+
+              <div className="judge-photo-grid">
+                <figure className="judge-photo-card judge-photo-reimon">
+                  <div className="judge-photo-frame">
+                    <img src="/images/reimon-judge.jpg" alt="青木玲門の比較用写真" />
+                  </div>
+                  <figcaption>
+                    <strong>青木 玲門</strong>
+                    <span>自称・小栗一瞬</span>
+                  </figcaption>
+                </figure>
+
+                <div className="judge-versus" aria-hidden="true">VS</div>
+
+                <figure className="judge-photo-card judge-photo-oguri">
+                  <div className="judge-photo-frame">
+                    <img src="/images/oguri-shun-judge.jpg" alt="小栗旬さんの比較用写真" />
+                  </div>
+                  <figcaption>
+                    <strong>小栗 旬</strong>
+                    <span>本家</span>
+                  </figcaption>
+                </figure>
+              </div>
+
+              <p className="judge-comparison-note">
+                ※メガネ・ヒゲ・顎の角度による印象操作を含みます。
+              </p>
+            </div>
+
             <div className="judge-question">
+              <b className="judge-final-stamp">最終審議</b>
               <span>緊急アンケート</span>
               <h3>レイモンは小栗旬に似ていますか？</h3>
               <p>あなたの答えを、下の3つから押してください。</p>
@@ -267,9 +344,21 @@ export default function Home() {
             {topics.map((topic, index) => <span key={topic} style={{ transform: `rotate(${index % 2 ? 2 : -2}deg)` }}>{topic}</span>)}
           </div>
           <div className="one-to-one-grid">
-            <article><h3>とりあえず笑う</h3><p>最初の3分で一度笑っておくと、その後の話がスムーズです。</p></article>
-            <article><h3>面白い話を振る</h3><p>急に目が輝きます。仕事の相談より先に企画が始まる場合があります。</p></article>
-            <article><h3>とかいって意外と真面目</h3><p>是非お悩みを教えてください。<br />私の人脈で解決できそうな方お繋ぎします！</p></article>
+            <article>
+              <img src="/images/one-to-one-laugh.png" alt="机を叩いて大笑いしている様子" />
+              <h3>とりあえず笑う</h3>
+              <p>最初の3分で一度笑っておくと、その後の話がスムーズです。</p>
+            </article>
+            <article>
+              <img src="/images/one-to-one-talk.png" alt="面白い話で相手の目が輝いている様子" />
+              <h3>面白い話を振る</h3>
+              <p>急に目が輝きます。仕事の相談より先に企画が始まる場合があります。</p>
+            </article>
+            <article>
+              <img src="/images/one-to-one-serious.png" alt="真剣に話を聞いてメモを取っている様子" />
+              <h3>とかいって意外と真面目</h3>
+              <p>是非お悩みを教えてください。<br />私の人脈で解決できそうな方お繋ぎします！</p>
+            </article>
           </div>
           <blockquote>「強い願望は、HENTAIを極めること。<br />ただし仕事は、びっくりするほど真面目。」</blockquote>
         </section>
@@ -330,9 +419,37 @@ export default function Home() {
           <h2>すべては今につながる<br /><em>壮大な伏線だった。</em></h2>
           <div className="timeline">
             {careers.map((career) => (
-              <article key={career.no} className="timeline-card">
-                <div className="timeline-no">{career.no}</div>
-                <div><span>{career.place}</span><h3>{career.title}</h3><p>{career.note}</p></div>
+              <article
+                key={career.no}
+                className={`timeline-card${career.current ? " timeline-card-current" : ""}${career.contain ? " timeline-card-image-contain" : ""}`}
+              >
+                <div className="timeline-image">
+                  <button
+                    type="button"
+                    className="timeline-image-button"
+                    onClick={(event) => openTimelineLightbox(career, event.currentTarget)}
+                    aria-label={`${career.title}の画像を拡大表示`}
+                  >
+                    <img src={career.src} alt={career.alt} loading="lazy" />
+                    <span className="timeline-zoom-hint" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="m20 20-4-4" />
+                      </svg>
+                      <span>click</span>
+                    </span>
+                  </button>
+                  <div className="timeline-no" aria-hidden="true">
+                    <small>EPISODE</small>
+                    <strong>{career.no}</strong>
+                  </div>
+                  <span className="timeline-place">{career.place}</span>
+                  {career.current && <b className="timeline-stamp">伏線回収中</b>}
+                </div>
+                <div className="timeline-content">
+                  <h3>{career.title}</h3>
+                  <p>{career.note}</p>
+                </div>
               </article>
             ))}
           </div>
@@ -340,12 +457,36 @@ export default function Home() {
 
         <section className="dark-section abilities-section">
           <div className="section-kicker yellow">REIMON&apos;S BUSINESS</div>
-          <h2>で、結局<br /><em>何屋なんだよ？</em></h2>
-          <p className="ability-intro">BNIで最も説明しづらい男の仕事内容を、3つにまとめました。</p>
+          <h2>
+            で、結局<br />
+            <em>何屋なんだよ？</em>
+          </h2>
+          <p className="ability-intro">
+            会社の「ムダ・採用・見せ方」を、<br />
+            システムとデザインで整える人です。
+          </p>
           <div className="ability-grid">
-            <article><b>01</b><h3>Webアプリ</h3><p><strong>忙しいから人を増やそうとしているそこのあなた</strong><br />人を増やす前に、その仕事自体を減らすシステム、作っちゃいます！</p></article>
-            <article><b>02</b><h3>Webサイト</h3><p><strong>求人でうまくいっていないそこのあなた</strong><br />ぶっ飛んだ、見たことない世界観で求職者がワクワクする採用のホームページ、作っちゃいます！</p></article>
-            <article><b>03</b><h3>ロゴ・紙・<br />プレゼン資料・動画</h3><p><strong>とにかく爪痕を残したいそこのあなた</strong><br />爪痕と遺恨を残す販促物は、お任せください。</p></article>
+            <article>
+              <span className="service-label">SYSTEM</span>
+              <h3>業務改善システム</h3>
+              <strong className="service-catch">人を増やす前に、まず仕事を減らす。</strong>
+              <p className="service-description">入力・集計・確認・情報共有などのムダな作業をシステム化。少人数でも現場が回る仕組みをつくります。</p>
+              <p className="service-note">新しく人を採用する前に、その仕事自体を減らせないか、一度ご相談ください。</p>
+            </article>
+            <article>
+              <span className="service-label">RECRUIT</span>
+              <h3>採用ホームページ</h3>
+              <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
+              <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
+              <p className="service-note">普通の採用サイトは、たぶん作りません。</p>
+            </article>
+            <article>
+              <span className="service-label">BRANDING</span>
+              <h3>企業ブランディング</h3>
+              <strong className="service-catch">いい会社なのに、見せ方で損していませんか？</strong>
+              <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
+              <p className="service-note">爪痕は残します。遺恨は残さないよう努力します。</p>
+            </article>
           </div>
           <div className="power-meter">
             <div><span>デザイン</span><i style={{ width: "94%" }} /><b>94</b></div>
@@ -381,7 +522,7 @@ export default function Home() {
                     type="button"
                     onClick={() => selectWork(index)}
                     aria-pressed={activeWork === index}
-                    aria-label={`${work.title}を大きく表示`}
+                    aria-label={`${work.title.replace(/\n/g, "")}を大きく表示`}
                   >
                     <img src={work.src} alt="" />
                     <span>{work.tag}</span>
@@ -397,10 +538,27 @@ export default function Home() {
                   <small>いま選んだお蔵入り作品</small>
                   <b>{String(activeWork + 1).padStart(2, "0")} / 09</b>
                 </div>
-                <img key={works[activeWork].src} src={works[activeWork].src} alt={works[activeWork].title} />
+                <img key={works[activeWork].src} src={works[activeWork].src} alt={works[activeWork].title.replace(/\n/g, "")} />
               </div>
               <div className="featured-caption">
-                <h3>{works[activeWork].title}</h3>
+                <p className="featured-category">
+                  {works[activeWork].category.startsWith("カテゴリー ") ? (
+                    <>
+                      <span>カテゴリー</span>
+                      {works[activeWork].category.slice("カテゴリー ".length)}
+                    </>
+                  ) : (
+                    works[activeWork].category
+                  )}
+                </p>
+                <h3>
+                  {works[activeWork].title.split("\n").map((line, index) => (
+                    <span key={line}>
+                      {index > 0 && <br />}
+                      {line}
+                    </span>
+                  ))}
+                </h3>
                 <button className="work-back" type="button" onClick={scrollToWorkSelector}>別の黒歴史も見る</button>
               </div>
             </div>
@@ -485,6 +643,35 @@ export default function Home() {
           <p>このサイトはBNIメンバー向けの真面目な1to1サイトです。たぶん。</p>
         </footer>
       </div>
+      {timelineLightbox && (
+        <div
+          className="timeline-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="経歴画像の拡大表示"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeTimelineLightbox();
+            }
+          }}
+        >
+          <div className="timeline-lightbox-content">
+            <button
+              type="button"
+              className="timeline-lightbox-close"
+              onClick={closeTimelineLightbox}
+              aria-label="拡大画像を閉じる"
+            >
+              ×
+            </button>
+            <img src={timelineLightbox.src} alt={timelineLightbox.alt} />
+            <div className="timeline-lightbox-caption">
+              <span>{timelineLightbox.episode}</span>
+              <strong>{timelineLightbox.title}</strong>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
