@@ -13,8 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "青木玲門｜公式かもしれない自己紹介サイト",
-  description: "人手不足対策DXアドバイザー、青木玲門の人間性がだいたい分かる公式かもしれないサイト。",
+  title: "青木玲門｜世界一ふざけたBNI 1to1攻略サイト",
+  description:
+    "BNIメンバー向け。人手不足対策DXアドバイザー・青木玲門の人間性、G.A.I.N.S.、仕事内容、紹介してほしい方が分かる、世界一ふざけた1to1攻略サイト。",
+  robots: {
+    index: false,
+    follow: false,
+  },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -27,9 +32,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>
