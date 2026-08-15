@@ -150,14 +150,12 @@ export default function Home() {
     };
   }, [timelineLightbox]);
 
-  const openTimelineLightbox = (career: (typeof careers)[number], trigger: HTMLButtonElement) => {
+  const openTimelineLightbox = (
+    item: { src: string; alt: string; title: string; episode: string },
+    trigger: HTMLButtonElement,
+  ) => {
     timelineLightboxTriggerRef.current = trigger;
-    setTimelineLightbox({
-      src: career.src,
-      alt: career.alt,
-      title: career.title,
-      episode: `EPISODE ${career.no}`,
-    });
+    setTimelineLightbox(item);
   };
 
   const judge = (type: "yes" | "instant" | "no") => {
@@ -368,13 +366,32 @@ export default function Home() {
               <span className="service-label">SYSTEM</span>
               <h3>業務改善システム</h3>
               <div className="service-image">
-                <Image
-                  src="/images/services/service-business-improvement-system-v4.png"
-                  alt="無駄な仕事を業務改善システムで整理する青木玲門"
-                  width={1536}
-                  height={1024}
-                  sizes="(max-width: 900px) 100vw, 360px"
-                />
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onClick={(event) => openTimelineLightbox({
+                    src: "/images/services/service-business-improvement-system-v4.png",
+                    alt: "無駄な仕事を業務改善システムで整理する青木玲門",
+                    title: "業務改善システム",
+                    episode: "SERVICE",
+                  }, event.currentTarget)}
+                  aria-label="業務改善システムの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-business-improvement-system-v4.png"
+                    alt="無駄な仕事を業務改善システムで整理する青木玲門"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <span className="timeline-zoom-hint" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m20 20-4-4" />
+                    </svg>
+                    <span>click</span>
+                  </span>
+                </button>
               </div>
               <strong className="service-catch">人を増やす前に、まず仕事を減らす。</strong>
               <p className="service-description">入力・集計・確認・情報共有などのムダな作業をシステム化。少人数でも現場が回る仕組みをつくります。</p>
@@ -384,13 +401,32 @@ export default function Home() {
               <span className="service-label">RECRUIT</span>
               <h3>採用ホームページ</h3>
               <div className="service-image">
-                <Image
-                  src="/images/services/service-recruitment-website-v2.png"
-                  alt="さまざまな職種の青木玲門が登場する採用ホームページ"
-                  width={1536}
-                  height={1024}
-                  sizes="(max-width: 900px) 100vw, 360px"
-                />
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onClick={(event) => openTimelineLightbox({
+                    src: "/images/services/service-recruitment-website-v2.png",
+                    alt: "さまざまな職種の青木玲門が登場する採用ホームページ",
+                    title: "採用ホームページ",
+                    episode: "SERVICE",
+                  }, event.currentTarget)}
+                  aria-label="採用ホームページの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-recruitment-website-v2.png"
+                    alt="さまざまな職種の青木玲門が登場する採用ホームページ"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <span className="timeline-zoom-hint" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m20 20-4-4" />
+                    </svg>
+                    <span>click</span>
+                  </span>
+                </button>
               </div>
               <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
               <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
@@ -400,13 +436,32 @@ export default function Home() {
               <span className="service-label">BRANDING</span>
               <h3>企業ブランディング</h3>
               <div className="service-image">
-                <Image
-                  src="/images/services/service-corporate-branding.png"
-                  alt="ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング"
-                  width={1536}
-                  height={1024}
-                  sizes="(max-width: 900px) 100vw, 360px"
-                />
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onClick={(event) => openTimelineLightbox({
+                    src: "/images/services/service-corporate-branding.png",
+                    alt: "ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング",
+                    title: "企業ブランディング",
+                    episode: "SERVICE",
+                  }, event.currentTarget)}
+                  aria-label="企業ブランディングの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-corporate-branding.png"
+                    alt="ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <span className="timeline-zoom-hint" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m20 20-4-4" />
+                    </svg>
+                    <span>click</span>
+                  </span>
+                </button>
               </div>
               <strong className="service-catch">いい会社なのに、見せ方で損していませんか？</strong>
               <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
@@ -511,7 +566,12 @@ export default function Home() {
                   <button
                     type="button"
                     className="timeline-image-button"
-                    onClick={(event) => openTimelineLightbox(career, event.currentTarget)}
+                    onClick={(event) => openTimelineLightbox({
+                      src: career.src,
+                      alt: career.alt,
+                      title: career.title,
+                      episode: `EPISODE ${career.no}`,
+                    }, event.currentTarget)}
                     aria-label={`${career.title}の画像を拡大表示`}
                   >
                     <img src={career.src} alt={career.alt} loading="lazy" />
@@ -523,10 +583,6 @@ export default function Home() {
                       <span>click</span>
                     </span>
                   </button>
-                  <div className="timeline-no" aria-hidden="true">
-                    <small>EPISODE</small>
-                    <strong>{career.no}</strong>
-                  </div>
                   <span className="timeline-place">{career.place}</span>
                   {career.current && <b className="timeline-stamp">伏線回収中</b>}
                 </div>
@@ -618,11 +674,57 @@ export default function Home() {
 
         <section className="evolution-section">
           <span className="next-badge">CURRENT MISSION</span>
-          <p>3つの仕事の中でも、現在もっとも力を入れている領域。</p>
-          <h2>人手不足対策<br /><strong>DXアドバイザー</strong></h2>
-          <div className="evolution-line">人を増やす前に、無駄な仕事を減らす。</div>
-          <p className="evolution-copy">システムありきではなく、まず業務を整理する。なくせる仕事・まとめられる仕事・自動化できる仕事を見つけ、必要な部分だけを現場で使える仕組みにします。</p>
-          <a href="#referral" className="evolution-button">紹介してほしい人を見る ↓</a>
+          <p className="evolution-lead">青木玲門が、今もっとも力を入れている仕事</p>
+          <h2>
+            <strong>人手不足対策DXアドバイザー</strong>って、
+            <br className="evolution-break" />
+            何をする人？
+          </h2>
+          <p className="evolution-answer">「人を増やす」以外の<br />解決方法をつくる人です。</p>
+          <p className="evolution-approach">いきなりシステムはつくりません。<br />まず、会社の仕事を見直して、<br />どこに無駄があるのかを見つけます。</p>
+
+          <div className="evolution-works">
+            <article>
+              <span className="evolution-work-no">01</span>
+              <h3>見つける</h3>
+              <p>仕事の流れを見直して、<br />無駄・二重作業・属人化を見つける。</p>
+            </article>
+            <article>
+              <span className="evolution-work-no">02</span>
+              <h3>整理する</h3>
+              <p>なくす・まとめる・自動化する仕事を<br />分けて整理する。</p>
+            </article>
+            <article>
+              <span className="evolution-work-no">03</span>
+              <h3>つくる</h3>
+              <p>本当に必要な機能だけを、<br />現場で使えるシステムにする。</p>
+            </article>
+          </div>
+
+          <p className="evolution-method">無駄な仕事を、そのままシステムにはしません。<br />見直して、減らして、<br />最後に必要なものだけをつくります。</p>
+
+          <div className="evolution-change">
+            <p className="evolution-change-label">こう変わります</p>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">何度も同じ内容を入力</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">一度の入力で自動集計</span>
+            </div>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">情報が紙・Excel・LINEにバラバラ</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">ひとつの画面でまとめて管理</span>
+            </div>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">電話で現場の進捗を確認</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">いつでも画面で状況を確認</span>
+            </div>
+          </div>
+
+          <p className="evolution-result">今いる人数でも、<br />会社が回りやすくなる。</p>
+          <p className="evolution-note">まず、<br />「その仕事、本当に必要ですか？」<br />から考えます。</p>
+          <a href="#referral" className="evolution-button">どんな人を紹介すればいい？ ↓</a>
         </section>
 
         <section className="referral-section" id="referral">
@@ -691,7 +793,7 @@ export default function Home() {
           className="timeline-lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label="経歴画像の拡大表示"
+          aria-label="画像の拡大表示"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               closeTimelineLightbox();
