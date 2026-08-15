@@ -101,7 +101,7 @@ h2, h3 { font-weight: 900; }
 .section-kicker { display: inline-block; margin-bottom: 15px; padding: 5px 11px; color: white; background: var(--red); font-size: 12px; letter-spacing: .13em; transform: rotate(-1deg); }
 .section-kicker.yellow { color: var(--ink); background: var(--yellow); }
 .paper-section h2, .dark-section h2, .warning-section h2, .evolution-section h2, .referral-section h2 { margin: 0 0 36px; font-size: clamp(44px, 6vw, 82px); line-height: 1.06; letter-spacing: -.07em; }
-#who, #one-to-one, #gains, #works, #referral, #history, #business, [id^="gain-"] { scroll-margin-top: 52px; }
+#who, #one-to-one, #gains, #works, #referral, #history, #business, [id^="gain-"], .referral-route, #referral-detail { scroll-margin-top: 52px; }
 h2 em { color: var(--red); font-style: normal; background: linear-gradient(transparent 65%, var(--yellow) 65%); }
 .intro-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 60px; align-items: center; }
 .intro-character { overflow: hidden; background: white; border: 6px solid var(--ink); box-shadow: 10px 10px 0 var(--yellow), 16px 16px 0 var(--red); transform: rotate(-1deg); }
@@ -497,7 +497,18 @@ mark { padding: 0 5px; background: var(--yellow); }
   word-break: keep-all;
 }
 .evolution-section h2 strong { color: var(--yellow); text-shadow: 4px 4px 0 var(--red); }
-.evolution-answer { margin: 16px 0 0; font-size: clamp(18px, 2.3vw, 26px); font-weight: 900; line-height: 1.5; }
+.evolution-answer {
+  display: inline-block;
+  margin: 16px 0 0;
+  padding: 12px 18px;
+  color: var(--ink);
+  background: var(--yellow);
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--red);
+  font-size: clamp(18px, 2.3vw, 26px);
+  font-weight: 900;
+  line-height: 1.5;
+}
 .evolution-approach { margin: 14px auto 0; max-width: 24em; font: 800 clamp(15px, 1.8vw, 18px)/1.7 "Yu Gothic", Meiryo, sans-serif; }
 .evolution-works {
   display: grid;
@@ -625,16 +636,138 @@ mark { padding: 0 5px; background: var(--yellow); }
   overflow-wrap: anywhere;
 }
 
-.referral-section { position: relative; overflow: hidden; padding: 78px 76px; border: 5px solid var(--ink); background-color: var(--paper); background-image: linear-gradient(rgba(20,20,20,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,20,.035) 1px, transparent 1px); background-size: 26px 26px; }
+.referral-section { position: relative; overflow-x: clip; padding: 78px 76px; border: 5px solid var(--ink); background-color: var(--paper); background-image: linear-gradient(rgba(20,20,20,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,20,.035) 1px, transparent 1px); background-size: 26px 26px; }
 .referral-section > * { max-width: 100%; min-width: 0; }
-.referral-target { margin: 8px 0 42px; padding: 28px 32px; color: white; background: var(--ink); border: 5px solid var(--ink); box-shadow: 10px 10px 0 var(--red); transform: rotate(-.6deg); font-weight: 900; }
-.referral-target span { display: inline-block; padding: 4px 10px; color: var(--ink); background: var(--yellow); font-size: 12px; font-weight: 900; letter-spacing: .14em; }
-.referral-target p { margin: 16px 0 0; font-size: clamp(28px, 4.4vw, 48px); font-weight: 900; line-height: 1.2; letter-spacing: -.04em; }
-.referral-signals { margin-bottom: 42px; }
+.referral-picker { margin: 0 0 24px; }
+.referral-picker h3 { margin: 0; font-size: clamp(26px, 3.6vw, 40px); line-height: 1.25; }
+.referral-picker p { margin: 12px 0 0; font: 800 16px/1.8 "Yu Gothic", Meiryo, sans-serif; }
+.referral-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; align-items: stretch; padding: 8px 12px 18px 0; }
+.referral-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  overflow: hidden;
+  text-align: left;
+  color: var(--ink);
+  background: white;
+  border: 4px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--yellow), 10px 10px 0 var(--red);
+  cursor: pointer;
+}
+.referral-card.is-selected {
+  z-index: 2;
+  border-width: 6px;
+  border-color: var(--red);
+  transform: translate(-3px, -6px);
+  box-shadow: 8px 8px 0 var(--yellow), 14px 14px 0 var(--ink);
+}
+.referral-card:focus-visible { outline: 4px solid var(--ink); outline-offset: 4px; }
+.referral-card-image {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--paper);
+  border-bottom: 4px solid var(--ink);
+}
+.referral-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.referral-card-target {
+  display: block;
+  margin: 16px 16px 0;
+  min-height: 4.35em;
+  font: 900 clamp(18px, 1.8vw, 22px)/1.45 "Yu Gothic", Meiryo, sans-serif;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+.referral-card-target span { display: block; }
+.referral-card-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 16px 16px; }
+.referral-card-tags span { padding: 6px 10px; color: var(--ink); background: var(--yellow); border: 2px solid var(--ink); font-size: 13px; font-weight: 900; line-height: 1.3; overflow-wrap: anywhere; }
+.referral-card-cta {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  padding: 10px 14px;
+  color: var(--ink);
+  background: #fffdf6;
+  border-top: 3px solid var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.referral-card.is-selected .referral-card-cta {
+  color: var(--ink);
+  background: var(--yellow);
+  font-weight: 900;
+}
+@media (hover: hover) and (pointer: fine) {
+  .referral-card { transition: transform .18s ease, box-shadow .18s ease; }
+  .referral-card:hover { transform: translateY(-4px); }
+  .referral-card.is-selected:hover { transform: translate(-3px, -8px); }
+}
+.referral-route {
+  margin: 28px 0 0;
+  padding: 28px 26px 8px;
+  background: white;
+  border: 4px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--red);
+  animation: referral-route-in .3s ease-out;
+}
+@keyframes referral-route-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .referral-route { animation: none; }
+}
+.referral-detail-target {
+  margin: 0 0 28px;
+  padding: 22px 24px 24px;
+  color: white;
+  background: var(--ink);
+  border: 4px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--red);
+}
+.referral-detail-target > span {
+  display: inline-block;
+  padding: 4px 10px;
+  color: var(--ink);
+  background: var(--yellow);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.referral-detail-target strong {
+  display: block;
+  margin-top: 14px;
+  font-size: clamp(24px, 3.6vw, 40px);
+  font-weight: 900;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+.referral-detail-target strong span { display: block; }
+.referral-step { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; font-size: clamp(22px, 3vw, 32px); font-weight: 900; line-height: 1.3; }
+.referral-step span { display: inline-block; padding: 4px 10px; color: white; background: var(--red); font-size: 12px; letter-spacing: .14em; }
+.referral-signals { margin-bottom: 32px; }
 .referral-signals h3, .referral-script h3, .referral-close h3 { margin: 0 0 22px; font-size: clamp(24px, 3.4vw, 36px); line-height: 1.25; }
 .referral-tags { display: flex; flex-wrap: wrap; gap: 12px; }
 .referral-tags span { padding: 12px 16px; color: var(--ink); background: white; border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--yellow); font: 900 15px/1.3 "Yu Gothic", Meiryo, sans-serif; }
-.referral-script { margin-bottom: 36px; }
+.referral-script { margin-bottom: 28px; }
 .referral-chat { display: grid; gap: 16px; }
 .referral-chat article { padding: 22px 24px; background: white; border: 4px solid var(--ink); }
 .chat-q { box-shadow: 6px 6px 0 var(--yellow); }
@@ -644,16 +777,18 @@ mark { padding: 0 5px; background: var(--yellow); }
 .referral-chat p { margin: 12px 0 0; font: 900 18px/1.7 "Yu Gothic", Meiryo, sans-serif; overflow-wrap: anywhere; }
 .referral-cue { margin: 22px 0; padding: 14px 18px; color: var(--ink); background: var(--yellow); border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--red); font: 900 clamp(18px, 2.4vw, 28px)/1.45 "Yu Gothic", Meiryo, sans-serif; transform: rotate(-1deg); }
 .referral-script blockquote { margin: 0; padding: 26px; color: white; background: var(--ink); border-left: 12px solid var(--red); font: 900 clamp(18px, 2.2vw, 26px)/1.7 "Yu Gothic", Meiryo, sans-serif; box-shadow: 8px 8px 0 var(--yellow); overflow-wrap: anywhere; }
-.referral-difficulty { display: grid; gap: 6px; margin: 0 0 28px; padding: 22px 24px; background: white; border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--yellow); }
+.referral-afterword { margin: 18px 0 0; padding: 16px 18px; background: #fffdf0; border: 3px solid var(--ink); box-shadow: 5px 5px 0 var(--yellow); font: 800 16px/1.8 "Yu Gothic", Meiryo, sans-serif; overflow-wrap: anywhere; }
+.referral-difficulty { display: grid; gap: 6px; margin: 0 0 8px; padding: 22px 24px; background: #fffdf6; border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--yellow); }
 .referral-difficulty span { color: var(--red); font-size: 12px; letter-spacing: .16em; }
 .referral-difficulty strong { color: var(--red); font-size: 32px; letter-spacing: .12em; }
 .referral-difficulty p { margin: 4px 0 0; font: 800 14px/1.7 "Yu Gothic", Meiryo, sans-serif; }
-.referral-copy { display: inline-flex; width: 100%; min-height: 64px; align-items: center; justify-content: center; padding: 12px 20px; color: white; background: var(--red); border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--yellow); font-size: 18px; font-weight: 900; text-align: center; overflow-wrap: anywhere; }
+.referral-copy { display: inline-flex; width: 100%; min-height: 64px; align-items: center; justify-content: center; margin-top: 20px; padding: 12px 20px; color: white; background: var(--red); border: 4px solid var(--ink); box-shadow: 7px 7px 0 var(--yellow); font-size: 18px; font-weight: 900; text-align: center; overflow-wrap: anywhere; cursor: pointer; }
 .referral-copy:hover { transform: translate(-2px, -2px); box-shadow: 9px 9px 0 var(--ink); }
+.referral-copy:focus-visible { outline: 4px solid var(--ink); outline-offset: 4px; }
 .referral-copy.is-copied { color: var(--ink); background: var(--yellow); }
 .referral-action { margin: 36px 0; padding: 32px 28px; text-align: center; color: var(--ink); background: var(--yellow); border: 5px solid var(--ink); box-shadow: 10px 10px 0 var(--red); }
 .referral-action span { display: inline-block; padding: 5px 10px; color: white; background: var(--ink); font-size: 12px; letter-spacing: .16em; transform: rotate(-2deg); }
-.referral-action p { margin: 18px 0 0; font-size: clamp(22px, 3.4vw, 34px); line-height: 1.45; }
+.referral-action p { margin: 18px 0 0; font-size: clamp(22px, 3.4vw, 34px); font-weight: 900; line-height: 1.45; }
 .referral-close { text-align: center; }
 .referral-close p { margin: 0 0 24px; font: 700 13px/1.8 "Yu Gothic", Meiryo, sans-serif; }
 .referral-back { display: inline-flex; min-height: 56px; align-items: center; justify-content: center; padding: 0 24px; color: white; background: var(--ink); border: 4px solid var(--ink); box-shadow: 6px 6px 0 var(--red); }
@@ -702,6 +837,20 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px
   .warning-section,
   .evolution-section,
   .referral-section { padding-block: 56px; }
+  .referral-cards { grid-template-columns: 1fr; gap: 22px; padding: 4px 8px 16px 0; }
+  .referral-card { min-height: 44px; }
+  .referral-card.is-selected { transform: translate(-2px, -4px); }
+  .referral-route {
+    width: calc(100% + 48px);
+    max-width: none;
+    margin: 28px -24px 0;
+    padding: 24px 18px 8px;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: 0 8px 0 var(--red);
+  }
+  .referral-detail-target { padding: 18px 16px 20px; }
+  .referral-script blockquote { font-size: 18px; }
   .evolution-break { display: none; }
   .evolution-works { grid-template-columns: 1fr; gap: 44px; }
   .evolution-works article,
@@ -894,9 +1043,12 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px
   .paper-section h2, .dark-section h2, .warning-section h2, .evolution-section h2, .referral-section h2 { font-size: 43px; }
   .evolution-section h2 { font-size: clamp(28px, 8vw, 36px); }
   .ability-intro { font-size: 14px; }
-  .referral-target { padding: 22px 18px; }
-  .referral-target p { font-size: 26px; }
-  .referral-tags span, .referral-chat p, .referral-script blockquote, .referral-copy, .referral-action p { overflow-wrap: anywhere; }
+  .referral-picker h3 { font-size: 26px; }
+  .referral-card-target { font-size: 18px; }
+  .referral-card-cta { min-height: 48px; font-size: 14px; }
+  .referral-detail-target strong { font-size: 26px; }
+  .referral-route { padding: 22px 14px 8px; }
+  .referral-tags span, .referral-chat p, .referral-script blockquote, .referral-copy, .referral-action p, .referral-card-target, .referral-cue, .referral-afterword, .referral-detail-target strong { overflow-wrap: anywhere; }
   .referral-copy { font-size: 16px; }
   .intro-character { border-width: 4px; box-shadow: 6px 6px 0 var(--yellow), 10px 10px 0 var(--red); }
   .big-copy { font-size: 19px; }
@@ -965,4 +1117,9 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 24px
   .timeline-image-button:hover img { transform: none; }
   .timeline-lightbox,
   .timeline-lightbox-content img { animation: none; }
+  .referral-route { animation: none; }
+  .referral-card,
+  .referral-card:hover,
+  .referral-card.is-selected,
+  .referral-card.is-selected:hover { transition: none; transform: none; }
 }
