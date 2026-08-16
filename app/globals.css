@@ -702,20 +702,20 @@ mark { padding: 0 5px; background: var(--yellow); }
   line-height: 1.05;
   letter-spacing: -.04em;
 }
-.referral-heading-main,
-.referral-heading-accent {
-  display: block;
-}
 .referral-heading-main {
+  display: block;
   white-space: nowrap;
 }
 .referral-heading-nowrap {
   white-space: nowrap;
 }
 .referral-heading-accent {
+  display: inline;
   color: var(--red);
   font-style: normal;
   background: linear-gradient(transparent 65%, var(--yellow) 65%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 .referral-picker { margin: 0 0 16px; }
 .referral-picker h3 { margin: 0; font-size: clamp(26px, 3.6vw, 40px); line-height: 1.25; }
