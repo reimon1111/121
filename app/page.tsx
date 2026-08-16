@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 import Image from "next/image";
 import { flushSync } from "react-dom";
 
@@ -34,7 +34,7 @@ const referrals = [
     alt: "書類と電話に追われ、事務員さんをもう一人採用しようとしている経営者",
     target: "事務員さんをもう一人\n採用しようとしている経営者",
     prefix: "事務員さんをもう一人",
-    emphasis: "採用しようとしている経営者",
+    emphasis: ["採用しようとしている", "経営者"],
     shortTitle: "事務員を採用予定の経営者",
     signals: ["人が足りない", "事務員を採用したい", "Excelが増えすぎた"],
     question: "「新しく採用する人には、どんな仕事をしてもらう予定ですか？」",
@@ -50,7 +50,7 @@ const referrals = [
     alt: "作業着で現場作業をしながら電話対応している水道工事会社の社長",
     target: "従業員5名以上の\nいつ会っても作業着を着ている\n水道工事会社の社長さん",
     prefix: "従業員5名以上の\nいつ会っても",
-    emphasis: "作業着を着ている水道工事会社の社長さん",
+    emphasis: ["作業着を着ている", "水道工事会社の社長さん"],
     shortTitle: "現場を離れられない水道工事会社の社長",
     signals: ["俺がいないと現場が回らない", "職人からの電話が多い", "現場後に事務作業"],
     question: "「社長が明日1日、現場に出なくても会社は回りますか？」",
@@ -66,7 +66,7 @@ const referrals = [
     alt: "建設業を顧問先に持つ税理士と司法書士",
     target: "建設業を顧問先に持つ\n税理士さん・司法書士さん",
     prefix: "建設業を顧問先に持つ",
-    emphasis: "税理士さん・司法書士さん",
+    emphasis: ["税理士さん・司法書士さん"],
     shortTitle: "建設業に強い税理士・司法書士",
     signals: ["建設会社の顧問先が多い", "顧問先から人手不足の相談を受ける", "「人が足りない」とよく聞く"],
     question: "「顧問先で『人が足りない！』と悲鳴を上げている建設会社の社長さん、いませんか？」",
@@ -165,6 +165,9 @@ export default function Home() {
   const referralDetailRef = useRef<HTMLDivElement>(null);
   const copyTimeoutRef = useRef<number | null>(null);
   const timelineLightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const timelineTrackRef = useRef<HTMLDivElement>(null);
+  const lightboxPointerRef = useRef({ x: 0, y: 0 });
+  const [timelineIndex, setTimelineIndex] = useState(0);
   const [timelineLightbox, setTimelineLightbox] = useState<{
     src: string;
     alt: string;
@@ -206,6 +209,49 @@ export default function Home() {
   ) => {
     timelineLightboxTriggerRef.current = trigger;
     setTimelineLightbox(item);
+  };
+
+  const handleLightboxPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    lightboxPointerRef.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleLightboxClick = (
+    item: { src: string; alt: string; title: string; episode: string },
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    const dx = Math.abs(event.clientX - lightboxPointerRef.current.x);
+    const dy = Math.abs(event.clientY - lightboxPointerRef.current.y);
+    if (dx > 14 || dy > 14) return;
+    openTimelineLightbox(item, event.currentTarget);
+  };
+
+  const goTimeline = (index: number) => {
+    const next = (index + careers.length) % careers.length;
+    const track = timelineTrackRef.current;
+    const card = track?.children[next] as HTMLElement | undefined;
+    if (track && card) {
+      track.scrollTo({
+        left: card.offsetLeft,
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
+    }
+    setTimelineIndex(next);
+  };
+
+  const onTimelineScroll = () => {
+    const track = timelineTrackRef.current;
+    if (!track) return;
+    const cards = Array.from(track.children) as HTMLElement[];
+    let best = 0;
+    let bestDist = Number.POSITIVE_INFINITY;
+    cards.forEach((card, index) => {
+      const dist = Math.abs(card.offsetLeft - track.scrollLeft);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = index;
+      }
+    });
+    setTimelineIndex(best);
   };
 
   const judge = (type: "yes" | "instant" | "no") => {
@@ -316,7 +362,7 @@ export default function Home() {
         <section className="hero" id="top">
           <div className="hero-intro">
             <p className="eyebrow">BNIメンバーの皆さまへ</p>
-            <p className="eyebrow-note">※一般の方が見ても特に問題ありません</p>
+            <p className="eyebrow-note">※BNIメンバー向けに、人格を通常より多めに開放しています。</p>
             <h1><span className="hero-title-name">青木玲門の</span><br /><span className="hero-title-sub">世界一ふざけた<br />1to1攻略サイト</span></h1>
             <div className="hero-alert">※世界一は本人調べです。<br />異議は1to1で受け付けます。</div>
           </div>
@@ -349,8 +395,35 @@ export default function Home() {
           <div className="section-kicker">BEFORE YOUR 1TO1</div>
           <h2>青木玲門って<br /><em>誰だよ？</em></h2>
           <div className="intro-grid">
-            <div className="intro-character">
-              <img src="/images/reimon-detective.jpg" alt="電柱の陰で双眼鏡と焼きそばパンを持って張り込む青木玲門" />
+            <div className="intro-character" id="profile-seal">
+              <p className="intro-accident">
+                プロフィール画像が
+                <strong>ほぼ事故。</strong>
+              </p>
+              <div className={`sealed-image ${unsealed ? "is-open" : ""}`}>
+                <img
+                  src="/images/reimon-puzzle.jpg"
+                  alt={unsealed ? "パズル風に加工された青木玲門のプロフィール画像" : "封印されたプロフィール画像"}
+                />
+                {!unsealed && (
+                  <button
+                    type="button"
+                    className="seal"
+                    onClick={() => setUnsealed(true)}
+                    aria-label="封印を解いてプロフィール画像を表示"
+                  >
+                    <b>封</b>
+                    <span>クリックで解禁</span>
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                className="intro-unseal"
+                onClick={() => setUnsealed(!unsealed)}
+              >
+                {unsealed ? "そっと封印する" : "封印を解く"}
+              </button>
             </div>
             <div className="profile-copy">
               <p className="big-copy">
@@ -358,7 +431,7 @@ export default function Home() {
                 <mark>システムとデザインで、まとめて整えます。</mark>
               </p>
               <p className="intro-bio">
-                <span>長野市を拠点に、業務改善システム・採用ホームページ・企業ブランディングを手がけています。</span>
+                <span>長野市を拠点に、<span className="no-break">業務改善システム</span>・<span className="no-break">採用ホームページ</span>・<span className="no-break">企業ブランディング</span>を手がけています。</span>
                 <span>業務の整理からデザイン、実装まで一貫して対応し、少人数でも回る会社の仕組みをつくります。</span>
                 <span>デザイン歴は11年超。現在は「ボーダレス」として活動しています。</span>
               </p>
@@ -413,19 +486,21 @@ export default function Home() {
             </div>
 
             <div className="judge-question">
-              <b className="judge-final-stamp">最終審議</b>
-              <span>緊急アンケート</span>
+              <div className="judge-question-lead">
+                <b className="judge-final-stamp">最終審議</b>
+                <span>緊急アンケート</span>
+              </div>
               <h3>レイモンは小栗旬に似ていますか？</h3>
               <p>あなたの答えを、下の3つから押してください。</p>
             </div>
             <div className="judge-buttons" role="group" aria-label="小栗旬に似ているか回答する">
-              <button aria-pressed={judgementType === "yes"} className={judgementType === "yes" ? "active" : ""} onClick={() => judge("yes")}>
+              <button type="button" aria-pressed={judgementType === "yes"} className={judgementType === "yes" ? "active" : ""} onClick={() => judge("yes")}>
                 <small>回答 01</small><b>{judgementType === "yes" ? "✓ " : ""}似ている</b>
               </button>
-              <button aria-pressed={judgementType === "instant"} className={judgementType === "instant" ? "active" : ""} onClick={() => judge("instant")}>
+              <button type="button" aria-pressed={judgementType === "instant"} className={judgementType === "instant" ? "active" : ""} onClick={() => judge("instant")}>
                 <small>回答 02</small><b>{judgementType === "instant" ? "✓ " : ""}一瞬だけ</b>
               </button>
-              <button aria-pressed={judgementType === "no"} className={judgementType === "no" ? "active" : ""} onClick={() => judge("no")}>
+              <button type="button" aria-pressed={judgementType === "no"} className={judgementType === "no" ? "active" : ""} onClick={() => judge("no")}>
                 <small>回答 03</small><b>{judgementType === "no" ? "✓ " : ""}異議あり</b>
               </button>
             </div>
@@ -449,17 +524,18 @@ export default function Home() {
           <div className="ability-grid">
             <article>
               <span className="service-label">SYSTEM</span>
-              <h3>業務改善システム</h3>
+              <h3><span className="no-break">業務改善システム</span></h3>
               <div className="service-image">
                 <button
                   type="button"
                   className="timeline-image-button"
-                  onClick={(event) => openTimelineLightbox({
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
                     src: "/images/services/service-business-improvement-system-v4.png",
                     alt: "無駄な仕事を業務改善システムで整理する青木玲門",
                     title: "業務改善システム",
                     episode: "SERVICE",
-                  }, event.currentTarget)}
+                  }, event)}
                   aria-label="業務改善システムの画像を拡大表示"
                 >
                   <Image
@@ -484,17 +560,18 @@ export default function Home() {
             </article>
             <article>
               <span className="service-label">RECRUIT</span>
-              <h3>採用ホームページ</h3>
+              <h3><span className="no-break">採用ホームページ</span></h3>
               <div className="service-image">
                 <button
                   type="button"
                   className="timeline-image-button"
-                  onClick={(event) => openTimelineLightbox({
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
                     src: "/images/services/service-recruitment-website-v2.png",
                     alt: "さまざまな職種の青木玲門が登場する採用ホームページ",
                     title: "採用ホームページ",
                     episode: "SERVICE",
-                  }, event.currentTarget)}
+                  }, event)}
                   aria-label="採用ホームページの画像を拡大表示"
                 >
                   <Image
@@ -515,21 +592,22 @@ export default function Home() {
               </div>
               <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
               <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
-              <p className="service-note">普通の採用サイトは、たぶん作りません。</p>
+              <p className="service-note">無難なだけの採用サイトは、たぶん作りません。</p>
             </article>
             <article>
               <span className="service-label">BRANDING</span>
-              <h3>企業ブランディング</h3>
+              <h3><span className="no-break">企業ブランディング</span></h3>
               <div className="service-image">
                 <button
                   type="button"
                   className="timeline-image-button"
-                  onClick={(event) => openTimelineLightbox({
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
                     src: "/images/services/service-corporate-branding.png",
                     alt: "ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング",
                     title: "企業ブランディング",
                     episode: "SERVICE",
-                  }, event.currentTarget)}
+                  }, event)}
                   aria-label="企業ブランディングの画像を拡大表示"
                 >
                   <Image
@@ -552,6 +630,30 @@ export default function Home() {
               <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
               <p className="service-note">爪痕は残します。遺恨は残さないよう努力します。</p>
             </article>
+          </div>
+          <div className="proof-block">
+            <h3>
+              ふざけていますが、<br />
+              <em>作るものは本気です。</em>
+            </h3>
+            <p>
+              業務の整理から、設計・デザイン・実装まで。<br />
+              提案だけで終わらず、現場で使えるところまで一貫してつくります。
+            </p>
+            <ul className="proof-points">
+              <li>
+                <b>11年超</b>
+                <span>デザイン・Web制作歴</span>
+              </li>
+              <li>
+                <b>一貫対応</b>
+                <span>業務整理から設計・実装まで</span>
+              </li>
+              <li>
+                <b>専用化</b>
+                <span>必要な機能だけをシステム化</span>
+              </li>
+            </ul>
           </div>
           <div className="power-meter">
             <div><span>デザイン</span><i style={{ width: "94%" }} /><b>94</b></div>
@@ -580,11 +682,11 @@ export default function Home() {
             </article>
             <article>
               <img src="/images/one-to-one-serious.png" alt="真剣に話を聞いてメモを取っている様子" />
-              <h3>とかいって意外と真面目</h3>
+              <h3>とかいって意外と<span className="no-break">真面目</span></h3>
               <p>ぜひ、お悩みを教えてください。<br />私の人脈の中にお役に立てそうな方がいれば、おつなぎします！</p>
             </article>
           </div>
-          <blockquote>「強い願望は、HENTAIを極めること。<br />ただし仕事は、びっくりするほど真面目。」</blockquote>
+          <blockquote>「HENTAIは極めたい。<br />でも仕事は、びっくりするほど<span className="no-break">真面目です。</span>」</blockquote>
         </section>
 
         <section className="gains-section" id="gains" aria-labelledby="gains-title">
@@ -641,7 +743,25 @@ export default function Home() {
         <section className="paper-section history-section" id="history">
           <div className="section-kicker">REIMON&apos;S BIOGRAPHY SHEET</div>
           <h2>すべては今につながる<br /><em>壮大な伏線だった。</em></h2>
-          <div className="timeline">
+          <div
+            className="timeline-wrap"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") {
+                event.preventDefault();
+                goTimeline(timelineIndex + 1);
+              }
+              if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                goTimeline(timelineIndex - 1);
+              }
+            }}
+          >
+          <div
+            className="timeline"
+            ref={timelineTrackRef}
+            onScroll={onTimelineScroll}
+          >
             {careers.map((career) => (
               <article
                 key={career.no}
@@ -651,12 +771,13 @@ export default function Home() {
                   <button
                     type="button"
                     className="timeline-image-button"
-                    onClick={(event) => openTimelineLightbox({
+                    onPointerDown={handleLightboxPointerDown}
+                    onClick={(event) => handleLightboxClick({
                       src: career.src,
                       alt: career.alt,
                       title: career.title,
                       episode: `EPISODE ${career.no}`,
-                    }, event.currentTarget)}
+                    }, event)}
                     aria-label={`${career.title}の画像を拡大表示`}
                   >
                     <img src={career.src} alt={career.alt} loading="lazy" />
@@ -677,6 +798,48 @@ export default function Home() {
                 </div>
               </article>
             ))}
+          </div>
+          <div className="timeline-slider-ui">
+            <div className="timeline-slider-status">
+              <p className="timeline-slider-count" aria-live="polite">
+                {String(timelineIndex + 1).padStart(2, "0")} / {String(careers.length).padStart(2, "0")}
+              </p>
+              <div className="timeline-slider-dots" role="tablist" aria-label="略歴の現在位置">
+                {careers.map((career, index) => (
+                  <button
+                    key={career.no}
+                    type="button"
+                    role="tab"
+                    aria-selected={index === timelineIndex}
+                    className={index === timelineIndex ? "is-active" : ""}
+                    aria-label={`${career.title}へ移動`}
+                    onClick={() => goTimeline(index)}
+                  />
+                ))}
+              </div>
+              <div className="timeline-slider-bar" aria-hidden="true">
+                <i style={{ width: `${((timelineIndex + 1) / careers.length) * 100}%` }} />
+              </div>
+            </div>
+            <div className="timeline-slider-nav">
+              <button
+                type="button"
+                className="timeline-slider-prev"
+                aria-label="前の伏線を見る"
+                onClick={() => goTimeline(timelineIndex - 1)}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                className="timeline-slider-next"
+                aria-label={timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る"}
+                onClick={() => goTimeline(timelineIndex === careers.length - 1 ? 0 : timelineIndex + 1)}
+              >
+                {timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る →"}
+              </button>
+            </div>
+          </div>
           </div>
         </section>
 
@@ -746,14 +909,6 @@ export default function Home() {
                 <button className="work-back" type="button" onClick={scrollToWorkSelector}>別の黒歴史も見る</button>
               </div>
             </div>
-          </div>
-        </section>
-
-        <section className="warning-section">
-          <div className="warning-copy"><span>閲覧注意</span><h2>プロフィール画像が<br />ほぼ事故。</h2><p>本来は人間性を知ってもらうための写真です。人間性が伝わりすぎる可能性があります。</p><button onClick={() => setUnsealed(!unsealed)}>{unsealed ? "そっと封印する" : "封印を解く"}</button></div>
-          <div className={`sealed-image ${unsealed ? "is-open" : ""}`}>
-            <img src="/images/reimon-puzzle.jpg" alt={unsealed ? "パズル風に加工された青木玲門のプロフィール画像" : "封印されたプロフィール画像"} />
-            {!unsealed && <button className="seal" onClick={() => setUnsealed(true)} aria-label="封印を解いてプロフィール画像を表示"><b>封</b><span>クリックで解禁</span></button>}
           </div>
         </section>
 
@@ -853,7 +1008,12 @@ export default function Home() {
                         </span>
                       )}
                       <span className="referral-card-emphasis">
-                        {item.emphasis}
+                        {item.emphasis.map((part, index) => (
+                          <span key={part}>
+                            {index > 0 && <wbr />}
+                            <span className="no-break">{part}</span>
+                          </span>
+                        ))}
                       </span>
                     </p>
                     <span className="referral-card-cta">
