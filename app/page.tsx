@@ -33,6 +33,8 @@ const referrals = [
     src: "/images/referral-office-hiring.png",
     alt: "書類と電話に追われ、事務員さんをもう一人採用しようとしている経営者",
     target: "事務員さんをもう一人\n採用しようとしている経営者",
+    prefix: "事務員さんをもう一人",
+    emphasis: "採用しようとしている経営者",
     shortTitle: "事務員を採用予定の経営者",
     signals: ["人が足りない", "事務員を採用したい", "Excelが増えすぎた"],
     question: "「新しく採用する人には、どんな仕事をしてもらう予定ですか？」",
@@ -47,6 +49,8 @@ const referrals = [
     src: "/images/referral-waterworks-owner.png",
     alt: "作業着で現場作業をしながら電話対応している水道工事会社の社長",
     target: "従業員5名以上の\nいつ会っても作業着を着ている\n水道工事会社の社長さん",
+    prefix: "従業員5名以上の\nいつ会っても",
+    emphasis: "作業着を着ている水道工事会社の社長さん",
     shortTitle: "現場を離れられない水道工事会社の社長",
     signals: ["俺がいないと現場が回らない", "職人からの電話が多い", "現場後に事務作業"],
     question: "「社長が明日1日、現場に出なくても会社は回りますか？」",
@@ -61,6 +65,8 @@ const referrals = [
     src: "/images/referral-construction-advisors.png",
     alt: "建設業を顧問先に持つ税理士と司法書士",
     target: "建設業を顧問先に持つ\n税理士さん・司法書士さん",
+    prefix: "建設業を顧問先に持つ",
+    emphasis: "税理士さん・司法書士さん",
     shortTitle: "建設業に強い税理士・司法書士",
     signals: ["建設会社の顧問先が多い", "顧問先から人手不足の相談を受ける", "「人が足りない」とよく聞く"],
     question: "「顧問先で『人が足りない！』と悲鳴を上げている建設会社の社長さん、いませんか？」",
@@ -371,11 +377,6 @@ export default function Home() {
 
           <div className={`judge-box ${judgementType ? `judge-${judgementType}` : ""}`} id="oguri-judge">
             <div className="judge-comparison">
-              <div className="judge-comparison-heading">
-                <span>緊急検証資料</span>
-                <strong>顔面比較ファイル</strong>
-              </div>
-
               <h3 className="judge-comparison-claim">
                 本人は、
                 <strong>小栗旬に似ている</strong>
@@ -807,7 +808,15 @@ export default function Home() {
 
         <section className="referral-section" id="referral">
           <div className="section-kicker">REFERRAL REQUEST</div>
-          <h2>青木玲門に紹介してほしいのは、<br /><em>この3タイプです。</em></h2>
+          <h2>
+            <span className="referral-heading-main">
+              青木玲門に紹介してほしい
+              <span className="referral-heading-nowrap">のは、</span>
+            </span>
+            <span className="referral-heading-accent">
+              この3タイプです。
+            </span>
+          </h2>
 
           <div className="referral-picker">
             <p>顔が浮かんだカードを押すと、紹介の質問とセリフが出ます。</p>
@@ -837,11 +846,16 @@ export default function Home() {
                     />
                   </span>
                   <span className="referral-card-body">
-                    <strong className="referral-card-target">
-                      {item.target.split("\n").map((line) => (
-                        <span key={line}>{line}</span>
-                      ))}
-                    </strong>
+                    <p className="referral-card-target">
+                      {item.prefix && (
+                        <span className="referral-card-prefix">
+                          {item.prefix}
+                        </span>
+                      )}
+                      <span className="referral-card-emphasis">
+                        {item.emphasis}
+                      </span>
+                    </p>
                     <span className="referral-card-cta">
                       <span className="referral-cta-pc">この方の紹介方法を見る →</span>
                       <span className="referral-cta-sp">紹介方法を見る →</span>
