@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
 import Image from "next/image";
 import { flushSync } from "react-dom";
 
@@ -174,6 +174,7 @@ export default function Home() {
   const copyTimeoutRef = useRef<number | null>(null);
   const timelineLightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
   const timelineTrackRef = useRef<HTMLDivElement>(null);
+  const timelineScrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lightboxPointerRef = useRef({ x: 0, y: 0 });
   const [timelineIndex, setTimelineIndex] = useState(0);
   const [timelineLightbox, setTimelineLightbox] = useState<{
@@ -233,33 +234,78 @@ export default function Home() {
     openTimelineLightbox(item, event.currentTarget);
   };
 
-  const goTimeline = (index: number) => {
-    const next = (index + careers.length) % careers.length;
-    const track = timelineTrackRef.current;
-    const card = track?.children[next] as HTMLElement | undefined;
-    if (track && card) {
-      track.scrollTo({
-        left: card.offsetLeft,
-        behavior: prefersReducedMotion() ? "auto" : "smooth",
-      });
-    }
-    setTimelineIndex(next);
-  };
+  const commitTimelineIndex = useCallback(() => {
+    const timeline = timelineTrackRef.current;
+    if (!timeline) return;
 
-  const onTimelineScroll = () => {
-    const track = timelineTrackRef.current;
-    if (!track) return;
-    const cards = Array.from(track.children) as HTMLElement[];
-    let best = 0;
-    let bestDist = Number.POSITIVE_INFINITY;
+    const cards = Array.from(timeline.querySelectorAll<HTMLElement>(".timeline-card"));
+    if (!cards.length) return;
+
+    const timelineCenter = timeline.scrollLeft + timeline.clientWidth / 2;
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
     cards.forEach((card, index) => {
-      const dist = Math.abs(card.offsetLeft - track.scrollLeft);
-      if (dist < bestDist) {
-        bestDist = dist;
-        best = index;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - timelineCenter);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
       }
     });
-    setTimelineIndex(best);
+
+    setTimelineIndex((currentIndex) => (
+      currentIndex === nearestIndex ? currentIndex : nearestIndex
+    ));
+  }, []);
+
+  useEffect(() => {
+    const timeline = timelineTrackRef.current;
+    if (!timeline) return;
+
+    const handleScroll = () => {
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+      timelineScrollTimerRef.current = setTimeout(() => {
+        commitTimelineIndex();
+      }, 140);
+    };
+
+    const handleScrollEnd = () => {
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+      commitTimelineIndex();
+    };
+
+    timeline.addEventListener("scroll", handleScroll, { passive: true });
+    timeline.addEventListener("scrollend", handleScrollEnd);
+
+    return () => {
+      timeline.removeEventListener("scroll", handleScroll);
+      timeline.removeEventListener("scrollend", handleScrollEnd);
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+    };
+  }, [commitTimelineIndex]);
+
+  const goTimeline = (nextIndex: number) => {
+    if (nextIndex < 0 || nextIndex >= careers.length) return;
+
+    const timeline = timelineTrackRef.current;
+    const cards = timeline?.querySelectorAll<HTMLElement>(".timeline-card");
+    const targetCard = cards?.[nextIndex];
+    if (!timeline || !targetCard) return;
+
+    setTimelineIndex((currentIndex) => (
+      currentIndex === nextIndex ? currentIndex : nextIndex
+    ));
+    timeline.scrollTo({
+      left: targetCard.offsetLeft,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   };
 
   const judge = (type: "yes" | "instant" | "no") => {
@@ -771,7 +817,7 @@ export default function Home() {
             onKeyDown={(event) => {
               if (event.key === "ArrowRight") {
                 event.preventDefault();
-                goTimeline(timelineIndex + 1);
+                goTimeline(timelineIndex === careers.length - 1 ? 0 : timelineIndex + 1);
               }
               if (event.key === "ArrowLeft") {
                 event.preventDefault();
@@ -782,7 +828,6 @@ export default function Home() {
           <div
             className="timeline"
             ref={timelineTrackRef}
-            onScroll={onTimelineScroll}
           >
             {careers.map((career) => (
               <article
@@ -823,8 +868,10 @@ export default function Home() {
           </div>
           <div className="timeline-slider-ui">
             <div className="timeline-slider-status">
-              <p className="timeline-slider-count" aria-live="polite">
-                {String(timelineIndex + 1).padStart(2, "0")} / {String(careers.length).padStart(2, "0")}
+              <p className="timeline-slider-count timeline-counter" aria-live="polite">
+                <span>{String(timelineIndex + 1).padStart(2, "0")}</span>
+                <span>/</span>
+                <span>{String(careers.length).padStart(2, "0")}</span>
               </p>
               <div className="timeline-slider-dots" role="tablist" aria-label="略歴の現在位置">
                 {careers.map((career, index) => (
@@ -839,26 +886,34 @@ export default function Home() {
                   />
                 ))}
               </div>
-              <div className="timeline-slider-bar" aria-hidden="true">
-                <i style={{ width: `${((timelineIndex + 1) / careers.length) * 100}%` }} />
+              <div className="timeline-slider-bar timeline-progress" aria-hidden="true">
+                <span
+                  className="timeline-progress-bar"
+                  style={{
+                    "--timeline-progress": (timelineIndex + 1) / careers.length,
+                  } as CSSProperties}
+                />
               </div>
             </div>
             <div className="timeline-slider-nav">
               <button
                 type="button"
-                className="timeline-slider-prev"
+                className="timeline-slider-prev timeline-prev"
                 aria-label="前の伏線を見る"
+                disabled={timelineIndex === 0}
                 onClick={() => goTimeline(timelineIndex - 1)}
               >
                 ←
               </button>
               <button
                 type="button"
-                className="timeline-slider-next"
+                className="timeline-slider-next timeline-next"
                 aria-label={timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る"}
                 onClick={() => goTimeline(timelineIndex === careers.length - 1 ? 0 : timelineIndex + 1)}
               >
-                {timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る →"}
+                <span className="timeline-next-label">
+                  {timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る →"}
+                </span>
               </button>
             </div>
           </div>
