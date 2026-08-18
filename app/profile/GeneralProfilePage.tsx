@@ -75,63 +75,30 @@ const characterFiles = [
   },
 ];
 
-const referrals = [
+const issueCards = [
   {
     id: "hire",
-    src: "/images/referral-office-hiring.png",
-    alt: "書類と電話に追われ、事務員さんをもう一人採用しようとしている経営者",
-    target: "事務員さんをもう一人\n採用しようとしている経営者",
-    prefix: "事務員さんをもう一人",
-    emphasis: [
-      { parts: ["採用しようとしている"] },
-      { parts: ["経営者"] },
-    ],
-    shortTitle: "事務員を採用予定の経営者",
-    signals: ["人が足りない", "事務員を採用したい", "Excelが増えすぎた"],
-    question: "「新しく採用する人には、どんな仕事をしてもらう予定ですか？」",
-    answer: "「入力や集計などの事務作業です」",
-    introduction: "「人を増やす前に、その仕事自体を減らす仕組みを作っている青木玲門さんがいるよ。一度話してみない？」",
-    difficulty: "★★☆☆☆",
-    difficultyNote: "小栗旬問題に触れなければ、比較的安全に紹介できます。",
-    copyText: "人手不足になると、最初に採用を考えがちですが、人を増やす前に業務自体を減らす方法もあります。業務整理から実際のシステム開発まで一貫して対応している、人手不足対策DXアドバイザーの青木玲門さんをご紹介します。一度お話ししてみませんか？",
+    no: "01",
+    heading: "事務員さんをもう一人\n採用しようとしている会社",
+    reason: "入力・転記・集計を任せるための採用なら、その前に減らせる作業が残っている可能性があります。",
+    tasks: ["二重入力", "手作業での集計", "別の書類への転記"],
+    solution: "入力は一度だけ。\n必要な集計まで自動化します。",
   },
   {
     id: "field",
-    src: "/images/referral-waterworks-owner.png",
-    alt: "作業着で現場作業をしながら電話対応している水道工事会社の社長",
-    target: "従業員5名以上の\nいつ会っても作業着を着ている\n水道工事会社の社長さん",
-    prefix: "従業員5名以上の\nいつ会っても",
-    emphasis: [
-      { parts: ["作業着を着ている"] },
-      { parts: ["水道工事会社の", "社長さん"] },
-    ],
-    shortTitle: "現場を離れられない水道工事会社の社長",
-    signals: ["俺がいないと現場が回らない", "職人からの電話が多い", "現場後に事務作業"],
-    question: "「社長が明日1日、現場に出なくても会社は回りますか？」",
-    answer: "「いや、俺がいないと現場が回らないよ」",
-    introduction: "「社長が現場に出る時間を減らす仕組みを作っている青木さんがいるよ。一度話してみない？」",
-    difficulty: "★★☆☆☆",
-    difficultyNote: "「俺がいないと回らない」は、青木玲門召喚の確定演出です。",
-    copyText: "〇〇さん、長野で「人手不足対策DXアドバイザー」として活動している青木玲門さんをご紹介します！\n\n青木さんは、現場の進捗や報告を見える化し、社長が現場に出る時間や、電話・確認・事務作業を少しずつ減らす仕組みを作っている方です。\n\n〇〇さんのお仕事と相性が良いと思い、お繋ぎしました。\n\nお二人とも、よろしくお願いします！",
+    no: "02",
+    heading: "社長が現場と事務所を\n行き来している会社",
+    reason: "電話・写真・日報の確認が社長に集中すると、社長が現場から抜けにくくなります。",
+    tasks: ["電話で進捗確認", "現場写真の回収", "日報の確認"],
+    solution: "現場の情報を、\nひとつの画面で確認できる状態にします。",
   },
   {
-    id: "goose",
-    src: "/images/referral-construction-advisors.png",
-    alt: "建設業を顧問先に持つ税理士と司法書士",
-    target: "建設業を顧問先に持つ\n税理士さん・司法書士さん",
-    prefix: "建設業を顧問先に持つ",
-    emphasis: [
-      { parts: ["税理士さん・", "司法書士さん"] },
-    ],
-    shortTitle: "建設業に強い税理士・司法書士",
-    signals: ["建設会社の顧問先が多い", "顧問先から人手不足の相談を受ける", "「人が足りない」とよく聞く"],
-    question: "「顧問先で『人が足りない！』と悲鳴を上げている建設会社の社長さん、いませんか？」",
-    answer: "「いるよ。求人を出しても来ないって、いつも言っている社長がいるよ」",
-    introduction: "「顧問先の人手不足を、業務改善で助ける青木さんがいるよ。一度話してみない？」",
-    afterword: "その税理士さん・司法書士さんと青木玲門がつながれば、一社だけでなく、複数の建設会社を紹介していただける可能性があります。",
-    difficulty: "★★★☆☆",
-    difficultyNote: "一度信頼関係ができれば、紹介という金の卵を産み続ける可能性があります。いきなり卵を取りに行かず、まずはガチョウと仲良くなってください。",
-    copyText: "〇〇さん、長野で「人手不足対策DXアドバイザー」として活動している青木玲門さんをご紹介します！\n\n青木さんは、建設会社の仕事を見直し、確認・連絡・入力・集計などの無駄を減らして、少人数でも回りやすい仕組みをつくっている方です。\n\n〇〇さんの顧問先で、人手不足や業務負担に困っている建設会社があれば、お力になれると思います。\n\nお二人とも、よろしくお願いします！",
+    id: "scatter",
+    no: "03",
+    heading: "紙・Excel・LINEに\n情報が散らばっている会社",
+    reason: "情報が分散すると、探す・聞く・再入力する時間が増え、ミスや確認漏れにつながります。",
+    tasks: ["書類を探す", "同じ内容を何度も聞く", "複数のExcelへ入力する"],
+    solution: "必要な情報をひとつにまとめ、\n誰でも確認できる状態にします。",
   },
 ];
 
@@ -178,10 +145,6 @@ export default function GeneralProfilePage() {
   const lightboxPointerRef = useRef({ x: 0, y: 0 });
   const [timelineIndex, setTimelineIndex] = useState(0);
   const [lightbox, setLightbox] = useState<ImageLightbox | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [activeReferral, setActiveReferral] = useState<string | null>(null);
-  const referralDetailRef = useRef<HTMLDivElement>(null);
-  const copyTimeoutRef = useRef<number | null>(null);
 
   const hasImagePosts = socialPosts.some((post) => post.type === "image");
   const hasVideoPosts = socialPosts.some((post) => post.type === "video");
@@ -384,56 +347,6 @@ export default function GeneralProfilePage() {
     });
   };
 
-  const selectedReferral = referrals.find((item) => item.id === activeReferral) ?? null;
-  const otherReferrals = referrals.filter((item) => item.id !== activeReferral);
-  const difficultyCount = selectedReferral?.difficulty.replace(/☆/g, "").length ?? 0;
-
-  const resetReferralCopy = () => {
-    setCopied(false);
-    if (copyTimeoutRef.current) {
-      window.clearTimeout(copyTimeoutRef.current);
-      copyTimeoutRef.current = null;
-    }
-  };
-
-  const scrollToReferralDetail = () => {
-    referralDetailRef.current?.scrollIntoView({
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-      block: "start",
-    });
-  };
-
-  const handleSelectReferral = (referralId: string) => {
-    resetReferralCopy();
-    if (referralId === activeReferral) {
-      scrollToReferralDetail();
-      return;
-    }
-    setActiveReferral(referralId);
-  };
-
-  useEffect(() => {
-    if (!activeReferral) return;
-    const detail = referralDetailRef.current;
-    if (!detail) return;
-    detail.scrollIntoView({
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [activeReferral]);
-
-  const copyReferral = async () => {
-    if (!selectedReferral) return;
-    try {
-      await navigator.clipboard.writeText(selectedReferral.copyText);
-      setCopied(true);
-      if (copyTimeoutRef.current) window.clearTimeout(copyTimeoutRef.current);
-      copyTimeoutRef.current = window.setTimeout(() => setCopied(false), 3500);
-    } catch {
-      setCopied(false);
-    }
-  };
-
   const judge = (type: "yes" | "instant" | "no") => {
     const messages = {
       yes: "愛してます。あなたはとてもいい人です！",
@@ -469,9 +382,9 @@ export default function GeneralProfilePage() {
           <nav id="general-profile-nav" aria-label="ページ内ナビゲーション。各項目を押すと該当セクションへ移動します">
             <a href="#handle" onClick={() => setNavOpen(false)}>取扱説明</a>
             <a href="#business" onClick={() => setNavOpen(false)}>何屋？</a>
-            <a href="#social" onClick={() => setNavOpen(false)}>制作実績</a>
+            <a href="#social" onClick={() => setNavOpen(false)}>SNS作品</a>
             <a href="#history" onClick={() => setNavOpen(false)}>経歴</a>
-            <a href="#contact" onClick={() => setNavOpen(false)}>相談する</a>
+            <a href="#contact" onClick={() => setNavOpen(false)}>商談前メモ</a>
           </nav>
         </header>
 
@@ -1115,171 +1028,71 @@ export default function GeneralProfilePage() {
           )}
         </section>
 
-        <section className="referral-section" id="referral">
-          <div className="section-kicker">REFERRAL REQUEST</div>
+        <section className="issue-section" id="referral">
+          <div className="section-kicker">DIAGNOSIS</div>
           <h2>
-            <span className="referral-heading-main">
-              青木玲門に紹介してほしい
-              <span className="referral-heading-nowrap">のは、</span>
-            </span>
-            <span className="referral-heading-accent">
-              この3タイプです。
-            </span>
+            こんな会社なら、<br />
+            <em>青木の出番です。</em>
           </h2>
+          <p className="issue-lead">
+            人手不足の原因は、採用人数だけではありません。<br />
+            今の仕事の流れに、減らせるムダが残っていることがあります。
+          </p>
 
-          <div className="referral-picker">
-            <p>顔が浮かんだカードを押すと、紹介の質問とセリフが出ます。</p>
-          </div>
-
-          <div className="referral-cards">
-            {referrals.map((item) => {
-              const selected = item.id === activeReferral;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`referral-card${selected ? " is-selected" : ""}`}
-                  aria-expanded={selected}
-                  aria-controls="referral-detail"
-                  aria-current={selected ? "true" : undefined}
-                  aria-label={item.target.replace(/\n/g, "")}
-                  onClick={() => handleSelectReferral(item.id)}
-                >
-                  <span className="referral-card-image">
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="(max-width: 900px) 40vw, 340px"
-                      style={{ objectFit: "cover" }}
-                    />
-                  </span>
-                  <span className="referral-card-body">
-                    <p className="referral-card-target">
-                      {item.prefix && (
-                        <span className="referral-card-prefix">
-                          {item.prefix}
-                        </span>
-                      )}
-                      <span className="referral-card-emphasis">
-                        {item.emphasis.map((line) => (
-                          <span key={line.parts.join("")} className="referral-emphasis-line">
-                            <span className="referral-highlight">
-                              {line.parts.map((part, index) => (
-                                <span key={part}>
-                                  {index > 0 && <wbr />}
-                                  <span className="no-break">{part}</span>
-                                </span>
-                              ))}
-                            </span>
-                          </span>
-                        ))}
-                      </span>
-                    </p>
-                    <span className="referral-card-cta">
-                      <span className="referral-cta-pc">この方の紹介方法を見る →</span>
-                      <span className="referral-cta-sp">紹介方法を見る →</span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {selectedReferral && (
-            <div
-              id="referral-detail"
-              ref={referralDetailRef}
-              className="referral-route"
-              aria-live="polite"
-            >
-              <div key={selectedReferral.id} className="referral-route-body">
-                <div className="referral-detail-target">
-                  <span>今回紹介してほしい方</span>
-                  <strong>
-                    {selectedReferral.target.split("\n").map((line) => (
-                      <span key={line}>{line}</span>
+          <div className="issue-cards">
+            {issueCards.map((card) => (
+              <article key={card.id} className="issue-card">
+                <div className="issue-card-header">
+                  <span className="issue-card-no">CASE {card.no}</span>
+                  <h3 className="issue-card-heading">
+                    {card.heading.split("\n").map((line, i) => (
+                      <span key={i}>{line}</span>
                     ))}
-                  </strong>
+                  </h3>
                 </div>
-
-                <div className="referral-signals">
-                  <p className="referral-step"><span>STEP 1</span>こんな言葉を聞いたら</p>
-                  <div className="referral-tags">
-                    {selectedReferral.signals.map((signal, index) => (
-                      <span key={signal} style={{ transform: `rotate(${index % 2 ? 1.5 : -1.5}deg)` }}>{signal}</span>
+                <p className="issue-card-reason">{card.reason}</p>
+                <div className="issue-card-tasks">
+                  <span className="issue-label-bad">よくある作業</span>
+                  <ul>
+                    {card.tasks.map((task) => (
+                      <li key={task}>{task}</li>
                     ))}
-                  </div>
+                  </ul>
                 </div>
-
-                <div className="referral-script">
-                  <p className="referral-step"><span>STEP 2</span>この質問をしてください</p>
-                  <div className="referral-chat">
-                    <article className="chat-q">
-                      <span>質問</span>
-                      <p>{selectedReferral.question}</p>
-                    </article>
-                    <article className="chat-a">
-                      <span>返答</span>
-                      <p>{selectedReferral.answer}</p>
-                    </article>
-                  </div>
-                  <p className="referral-step"><span>STEP 3</span>この一言で青木玲門を紹介</p>
-                  <blockquote>{selectedReferral.introduction}</blockquote>
-                  <button className={`referral-copy ${copied ? "is-copied" : ""}`} type="button" onClick={copyReferral} aria-live="polite">
-                    {copied ? "コピーしました！そのまま紹介してください" : "紹介文をコピーする"}
-                  </button>
-                  <p className="referral-difficulty">
-                    紹介難易度 <strong aria-label={`星${difficultyCount}つ`}>{selectedReferral.difficulty}</strong>
-                    ｜{selectedReferral.difficultyNote}
+                <div className="issue-card-solution">
+                  <span className="issue-label-good">どう変えるか</span>
+                  <p>
+                    {card.solution.split("\n").map((line, i) => (
+                      <span key={i}>{line}</span>
+                    ))}
                   </p>
                 </div>
+              </article>
+            ))}
+          </div>
 
-                <div className="referral-action">
-                  <p>興味を持ってくれたら、その場で3人のLINEグループを作って青木玲門をご紹介ください。</p>
-                </div>
-
-                <div className="referral-switch">
-                  <p className="referral-switch-heading">ほかの紹介ルートも見てみる？</p>
-                  <div className="referral-switch-list">
-                    {otherReferrals.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        className="referral-switch-button"
-                        aria-label={`${item.shortTitle}の紹介方法を見る`}
-                        onClick={() => handleSelectReferral(item.id)}
-                      >
-                        <span className="referral-switch-thumb">
-                          <Image
-                            src={item.src}
-                            alt=""
-                            fill
-                            sizes="90px"
-                            style={{ objectFit: "cover" }}
-                          />
-                        </span>
-                        <span className="referral-switch-copy">
-                          <span className="referral-switch-label">{item.shortTitle}</span>
-                          <span className="referral-switch-arrow" aria-hidden="true">→</span>
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="issue-summary">
+            <p className="issue-summary-lead">いきなりシステムは作りません。</p>
+            <p>
+              まずは今の仕事を見て、<br />
+              「やめる・まとめる・自動化する」を整理し、<br />
+              本当に必要な部分だけを仕組みにします。
+            </p>
+          </div>
         </section>
 
         <section className="contact-section" id="contact">
-          <h2>まずは、会社に残っている<br />ムダ探しから始めます。</h2>
+          <h2>当日は、いちばん面倒な仕事を<br />ひとつ教えてください。</h2>
           <p>
-            システムを作ることが目的ではありません。<br />
-            仕事を見直し、減らせるものを減らし、<br />
-            本当に必要なところだけを仕組み化します。
+            その仕事、減らせるかもしれません。<br />
+            お話を聞きながら、青木が勝手に改善の糸口を探します。
           </p>
-          <p className="contact-note">相談だけでも大丈夫です。たぶん噛みつきません。</p>
+          <p className="contact-body">
+            きれいに整理しておく必要はありません。<br />
+            紙、Excel、LINE、電話。<br />
+            今の状態を、そのまま教えてください。
+          </p>
+          <p className="contact-note">たぶん噛みつきません。</p>
         </section>
 
         <footer>
