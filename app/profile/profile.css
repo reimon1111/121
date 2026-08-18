@@ -71,7 +71,7 @@
 .general-profile-page #contact,
 .general-profile-page #who,
 .general-profile-page #character,
-.general-profile-page #audience,
+.general-profile-page #referral,
 .general-profile-page #social,
 .general-profile-page #profile-seal,
 .general-profile-page [id^="character-"] {
@@ -439,42 +439,6 @@
   outline-offset: 3px;
 }
 
-.general-profile-page .audience-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.general-profile-page .audience-card {
-  min-width: 0;
-  padding: 26px 22px;
-  background: white;
-  border: 4px solid var(--ink);
-  box-shadow: 8px 8px 0 var(--red);
-}
-
-.general-profile-page .audience-card:nth-child(even) {
-  box-shadow: 8px 8px 0 var(--yellow);
-}
-
-.general-profile-page .audience-card span {
-  display: inline-block;
-  margin-bottom: 10px;
-  padding: 4px 8px;
-  color: white;
-  background: var(--red);
-  font: 900 11px/1 "Yu Gothic", Meiryo, sans-serif;
-  letter-spacing: 0.14em;
-}
-
-.general-profile-page .audience-card p {
-  margin: 0;
-  font: 900 clamp(18px, 2.4vw, 26px)/1.45 "Yu Gothic", Meiryo, sans-serif;
-  letter-spacing: -0.04em;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-
 .general-profile-page .contact-section {
   padding: 72px 64px;
   color: white;
@@ -574,10 +538,6 @@
     margin-top: 10px;
   }
 
-  .general-profile-page .audience-grid {
-    grid-template-columns: 1fr;
-  }
-
   .general-profile-page .social-archive {
     padding: 64px 24px;
   }
@@ -636,9 +596,5 @@
 
   .general-profile-page .character-heading h2 {
     font-size: clamp(28px, 9vw, 40px);
-  }
-
-  .general-profile-page .audience-card p {
-    font-size: 18px;
   }
 }
