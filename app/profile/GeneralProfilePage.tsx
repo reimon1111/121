@@ -1,0 +1,1162 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
+import Image from "next/image";
+import { INSTAGRAM_PROFILE_URL, socialPosts, type SocialPost } from "./social-posts";
+
+const careers = [
+  { no: "01", place: "長野", title: "1987年 9月24日 長野県に爆誕", note: "この時点では、まだ小栗一瞬ではない。", src: "/images/timeline-birth.jpeg", alt: "青木玲門の誕生を表現した画像" },
+  { no: "02", place: "東京", title: "デザイン専門学校 2年", note: "デッサンを学ぶ。なお、才能は最後まで輪郭を見せなかった。", src: "/images/timeline-design-school-drawing.png", alt: "デザイン学校で石膏デッサンをする青木玲門" },
+  { no: "03", place: "神奈川", title: "ダーツマシン営業 3年", note: "ダーツマシンを売りながら営業力を習得。的に刺す技術だけは未実装。", src: "/images/timeline-darts-sales.png", alt: "ダーツを大きく外す青木玲門" },
+  { no: "04", place: "東京", title: "Web制作会社 4年", note: "Web制作の基礎を叩き込まれる。締切という名の敵と毎日戦う。", src: "/images/timeline-web-company.jpg", alt: "Web制作会社時代を表現したパロディ画像", contain: true },
+  { no: "05", place: "長野", title: "パチンコ店 広告宣伝課 4年", note: "派手なデザインは正義。最終的に、自分自身をパチンコ台にした。(嘘)", src: "/images/timeline-pachinko-cr-aoki-reimon.png", alt: "架空のパチンコ台CR青木玲門" },
+  { no: "06", place: "現在", title: "ボーダレスとして独立", note: "Webもアプリも、仕事も笑いも境界なし。", src: "/images/timeline-borderless-independent.png", alt: "独立後すべての業務を一人で担当する青木玲門", current: true },
+];
+
+const characterFiles = [
+  {
+    id: "ambition",
+    accent: "g",
+    title: "AMBITION",
+    japanese: "野望",
+    stamp: "暴走予定",
+    items: [
+      "長野で一番クレイジーな人と呼ばれる存在になる！",
+      "筋肉ムキムキになって白のタンクトップが似合う男になる",
+      "面白さで仕事が舞い込む世界を作る",
+    ],
+  },
+  {
+    id: "record",
+    accent: "a",
+    title: "TRACK RECORD",
+    japanese: "実績",
+    stamp: "前科あり",
+    items: [
+      "コンプライアンス違反しまくって経営者団体の本部から3回怒られる",
+      "「才能の無駄遣い」という最高級の褒め言葉を多数受賞",
+    ],
+  },
+  {
+    id: "curiosity",
+    accent: "i",
+    title: "CURIOSITY",
+    japanese: "興味",
+    stamp: "だいたい誰得",
+    items: [
+      "怒られそうな企画を真剣に考えること",
+      "「これ誰得？」と言われる作品づくり",
+    ],
+  },
+  {
+    id: "people",
+    accent: "n",
+    title: "PEOPLE",
+    japanese: "人脈",
+    stamp: "生存ネットワーク",
+    items: [
+      "BNI　長野リージョン 竜胆(リンドウ)チャプター",
+      "守成クラブ長野みらい",
+      "中小企業家同友会 しなの支部",
+      "怒られても仲良くしてくれる優しい仲間たち",
+    ],
+  },
+  {
+    id: "ability",
+    accent: "s",
+    title: "ABILITY",
+    japanese: "スキル",
+    stamp: "取扱注意",
+    items: [
+      "プロコンプライアンス違反合成クリエイター",
+      "気持ちの良いセクハラ",
+      "人の特徴を誇張して笑いに変える能力",
+    ],
+  },
+];
+
+const audienceCards = [
+  "事務員さんをもう一人\n採用しようとしている会社",
+  "社長が現場から\nなかなか抜けられない会社",
+  "紙・Excel・LINEに\n情報が散らばっている会社",
+  "求人を出しても\n応募が集まらない会社",
+];
+
+const socialFilters = [
+  { id: "all", label: "すべて" },
+  { id: "image", label: "画像" },
+  { id: "video", label: "動画" },
+] as const;
+
+type SocialFilter = (typeof socialFilters)[number]["id"];
+
+type ImageLightbox = {
+  src: string;
+  alt: string;
+  title: string;
+  episode: string;
+};
+
+function ZoomHint() {
+  return (
+    <span className="timeline-zoom-hint" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-4-4" />
+      </svg>
+      <span>click</span>
+    </span>
+  );
+}
+
+export default function GeneralProfilePage() {
+  const [judgement, setJudgement] = useState("まだ判定されていません。公平な目でお願いします。");
+  const [judgementType, setJudgementType] = useState<"yes" | "instant" | "no" | null>(null);
+  const [unsealed, setUnsealed] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
+  const [socialFilter, setSocialFilter] = useState<SocialFilter>("all");
+  const [socialExpanded, setSocialExpanded] = useState(false);
+  const [socialOpenId, setSocialOpenId] = useState<string | null>(null);
+  const timelineLightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const socialLightboxTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const socialVideoRef = useRef<HTMLVideoElement | null>(null);
+  const timelineTrackRef = useRef<HTMLDivElement>(null);
+  const timelineScrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lightboxPointerRef = useRef({ x: 0, y: 0 });
+  const [timelineIndex, setTimelineIndex] = useState(0);
+  const [lightbox, setLightbox] = useState<ImageLightbox | null>(null);
+
+  const hasImagePosts = socialPosts.some((post) => post.type === "image");
+  const hasVideoPosts = socialPosts.some((post) => post.type === "video");
+  const showSocialFilters = hasImagePosts && hasVideoPosts;
+  const filteredSocialPosts = useMemo(() => (
+    socialPosts.filter((post) => socialFilter === "all" || post.type === socialFilter)
+  ), [socialFilter]);
+  const socialOpenIndex = filteredSocialPosts.findIndex((post) => post.id === socialOpenId);
+  const socialOpenPost = socialOpenIndex >= 0 ? filteredSocialPosts[socialOpenIndex] : null;
+
+  const stopSocialVideo = () => {
+    const video = socialVideoRef.current;
+    if (!video) return;
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+  };
+
+  const closeLightbox = () => {
+    setLightbox(null);
+    window.requestAnimationFrame(() => {
+      timelineLightboxTriggerRef.current?.focus();
+    });
+  };
+
+  const closeSocialLightbox = useCallback(() => {
+    stopSocialVideo();
+    setSocialOpenId(null);
+    window.requestAnimationFrame(() => {
+      socialLightboxTriggerRef.current?.focus();
+    });
+  }, []);
+
+  const goSocial = useCallback((nextIndex: number) => {
+    if (!filteredSocialPosts.length) return;
+    const wrapped = (nextIndex + filteredSocialPosts.length) % filteredSocialPosts.length;
+    stopSocialVideo();
+    setSocialOpenId(filteredSocialPosts[wrapped].id);
+  }, [filteredSocialPosts]);
+
+  useEffect(() => {
+    if (!lightbox && !socialOpenPost) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (socialOpenPost) closeSocialLightbox();
+        else closeLightbox();
+      }
+      if (!socialOpenPost) return;
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goSocial(socialOpenIndex + 1);
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goSocial(socialOpenIndex - 1);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [lightbox, socialOpenPost, socialOpenIndex, closeSocialLightbox, goSocial]);
+
+  useEffect(() => {
+    if (socialOpenPost?.type !== "video") return;
+    let cancelled = false;
+
+    const playVideo = () => {
+      const video = socialVideoRef.current;
+      if (!video || cancelled) return;
+      video.play().catch(() => {});
+    };
+
+    const frame = window.requestAnimationFrame(playVideo);
+    const video = socialVideoRef.current;
+    video?.addEventListener("canplay", playVideo);
+
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      video?.removeEventListener("canplay", playVideo);
+    };
+  }, [socialOpenPost]);
+
+  const openImageLightbox = (
+    item: ImageLightbox,
+    trigger: HTMLButtonElement,
+  ) => {
+    timelineLightboxTriggerRef.current = trigger;
+    setLightbox(item);
+  };
+
+  const handleLightboxPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    lightboxPointerRef.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const didDrag = (event: MouseEvent<HTMLButtonElement>) => {
+    const dx = Math.abs(event.clientX - lightboxPointerRef.current.x);
+    const dy = Math.abs(event.clientY - lightboxPointerRef.current.y);
+    return dx > 14 || dy > 14;
+  };
+
+  const handleLightboxClick = (
+    item: ImageLightbox,
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    if (didDrag(event)) return;
+    openImageLightbox(item, event.currentTarget);
+  };
+
+  const handleSocialCardClick = (
+    post: SocialPost,
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    if (didDrag(event)) return;
+    socialLightboxTriggerRef.current = event.currentTarget;
+    setSocialOpenId(post.id);
+  };
+
+  const commitTimelineIndex = useCallback(() => {
+    const timeline = timelineTrackRef.current;
+    if (!timeline) return;
+
+    const cards = Array.from(timeline.querySelectorAll<HTMLElement>(".timeline-card"));
+    if (!cards.length) return;
+
+    const timelineCenter = timeline.scrollLeft + timeline.clientWidth / 2;
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    cards.forEach((card, index) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - timelineCenter);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    setTimelineIndex((currentIndex) => (
+      currentIndex === nearestIndex ? currentIndex : nearestIndex
+    ));
+  }, []);
+
+  useEffect(() => {
+    const timeline = timelineTrackRef.current;
+    if (!timeline) return;
+
+    const handleScroll = () => {
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+      timelineScrollTimerRef.current = setTimeout(() => {
+        commitTimelineIndex();
+      }, 140);
+    };
+
+    const handleScrollEnd = () => {
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+      commitTimelineIndex();
+    };
+
+    timeline.addEventListener("scroll", handleScroll, { passive: true });
+    timeline.addEventListener("scrollend", handleScrollEnd);
+
+    return () => {
+      timeline.removeEventListener("scroll", handleScroll);
+      timeline.removeEventListener("scrollend", handleScrollEnd);
+      if (timelineScrollTimerRef.current) {
+        clearTimeout(timelineScrollTimerRef.current);
+      }
+    };
+  }, [commitTimelineIndex]);
+
+  const prefersReducedMotion = () =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const goTimeline = (nextIndex: number) => {
+    if (nextIndex < 0 || nextIndex >= careers.length) return;
+
+    const timeline = timelineTrackRef.current;
+    const cards = timeline?.querySelectorAll<HTMLElement>(".timeline-card");
+    const targetCard = cards?.[nextIndex];
+    if (!timeline || !targetCard) return;
+
+    setTimelineIndex((currentIndex) => (
+      currentIndex === nextIndex ? currentIndex : nextIndex
+    ));
+    timeline.scrollTo({
+      left: targetCard.offsetLeft,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
+
+  const judge = (type: "yes" | "instant" | "no") => {
+    const messages = {
+      yes: "愛してます。あなたはとてもいい人です！",
+      instant: "正解です。その“一瞬”を11年以上こすり続けています。",
+      no: "異議は認めません。実際に私をみていただきご判断ください。",
+    };
+    setJudgement(messages[type]);
+    setJudgementType(type);
+  };
+
+  return (
+    <main className="general-profile-page">
+      <div className="breaking-news" aria-label="お知らせ">
+        <div className="ticker">
+          <span>長野速報　会社のムダを今日も捜索中　★ 小栗旬問題はいまだ未解決　★ 夏場だけ異常にモテる（虫に）</span>
+        </div>
+      </div>
+
+      <div className="star-field" aria-hidden="true"><i /><i /><i /></div>
+
+      <div className="site-shell">
+        <header className={`retro-nav${navOpen ? " is-open" : ""}`}>
+          <a className="mini-logo" href="#top"><b>AOKI REIMON</b><small>公式かもしれない</small></a>
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-expanded={navOpen}
+            aria-controls="general-profile-nav"
+            onClick={() => setNavOpen((open) => !open)}
+          >
+            {navOpen ? "閉じる" : "MENU"}
+          </button>
+          <nav id="general-profile-nav" aria-label="ページ内ナビゲーション。各項目を押すと該当セクションへ移動します">
+            <a href="#handle" onClick={() => setNavOpen(false)}>取扱説明</a>
+            <a href="#business" onClick={() => setNavOpen(false)}>何屋？</a>
+            <a href="#social" onClick={() => setNavOpen(false)}>制作実績</a>
+            <a href="#history" onClick={() => setNavOpen(false)}>経歴</a>
+            <a href="#contact" onClick={() => setNavOpen(false)}>相談する</a>
+          </nav>
+        </header>
+
+        <section className="hero" id="top">
+          <div className="hero-intro">
+            <p className="eyebrow">はじめましての皆さまへ</p>
+            <p className="eyebrow-note">※青木玲門の人格を、通常より多めに開放しています。</p>
+            <h1>
+              <span className="hero-title-name">青木玲門の</span>
+              <br />
+              <span className="hero-title-sub">世界一ふざけた<br />公式プロフィール</span>
+            </h1>
+            <div className="hero-alert">※世界一は本人調べです。異議は認めません。</div>
+          </div>
+
+          <div className="hero-visual">
+            <div className="orbit orbit-one" /><div className="orbit orbit-two" />
+            <div className="portrait-frame"><img src="/images/reimon-hero.jpg" alt="スーツ姿の青木玲門" /></div>
+            <div className="speech speech-one">長野が生んだ<br /><b>変態</b></div>
+            <div className="speech speech-two">通称<br /><strong>小栗一瞬</strong><span className="speech-two-note">小栗旬に一瞬<br />似ているから</span></div>
+          </div>
+
+          <div className="hero-details">
+            <div className="hero-base">
+              <strong>長野県長野市で活動</strong>
+              <small>屋号 ボーダレス</small>
+              <small>デザイン・Web制作歴11年超</small>
+            </div>
+            <p className="hero-lead"><span>肩書</span><strong>人手不足対策DXアドバイザー</strong></p>
+            <p className="hero-business-copy">
+              人を増やす前に、無駄な仕事を減らす。<br />
+              少人数でも回る会社の仕組みをつくります。
+            </p>
+          </div>
+          <a href="#who" className="scroll-note" aria-label="青木玲門の紹介へ移動">
+            SCROLLすると人間性がバレます ↓
+          </a>
+        </section>
+
+        <section className="paper-section intro-section" id="who">
+          <div className="section-kicker">WHO IS REIMON?</div>
+          <h2>青木玲門って<br /><em>誰だよ？</em></h2>
+          <div className="intro-grid">
+            <div className="intro-character" id="profile-seal">
+              <p className="intro-accident">
+                プロフィール画像が
+                <strong>ほぼ事故。</strong>
+              </p>
+              <div className={`sealed-image ${unsealed ? "is-open" : ""}`}>
+                <img
+                  src="/images/reimon-puzzle.jpg"
+                  alt={unsealed ? "パズル風に加工された青木玲門のプロフィール画像" : "封印されたプロフィール画像"}
+                />
+                {!unsealed && (
+                  <button
+                    type="button"
+                    className="seal"
+                    onClick={() => setUnsealed(true)}
+                    aria-label="封印を解いてプロフィール画像を表示"
+                  >
+                    <b>封</b>
+                    <span>クリックで解禁</span>
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                className="intro-unseal"
+                onClick={() => setUnsealed(!unsealed)}
+              >
+                {unsealed ? "そっと封印する" : "封印を解く"}
+              </button>
+            </div>
+            <div className="profile-copy">
+              <p className="big-copy">
+                ムダな仕事も、採用の悩みも、会社の見せ方も。<br />
+                <mark>システムとデザインで、まとめて整えます。</mark>
+              </p>
+              <div className="intro-skills">
+                <p className="intro-skills-label">青木玲門ができること</p>
+                <ul className="intro-skill-list">
+                  <li className="intro-skill-card">
+                    <span className="intro-skill-number">01</span>
+                    <span className="intro-skill-name no-break">業務改善システム</span>
+                  </li>
+                  <li className="intro-skill-card">
+                    <span className="intro-skill-number">02</span>
+                    <span className="intro-skill-name no-break">採用ホームページ</span>
+                  </li>
+                  <li className="intro-skill-card">
+                    <span className="intro-skill-number">03</span>
+                    <span className="intro-skill-name no-break">企業ブランディング</span>
+                  </li>
+                </ul>
+              </div>
+              <p className="intro-bio">
+                <span>長野市を拠点に、業務の整理からデザイン、実装まで一貫して対応し、少人数でも回る会社の仕組みをつくります。</span>
+                <span>デザイン歴は11年超。現在は「ボーダレス」として活動しています。</span>
+              </p>
+              <dl className="quick-profile">
+                <div className="profile-primary"><dt>屋号</dt><dd>ボーダレス</dd></div>
+                <div className="profile-primary"><dt>生年月日</dt><dd>1987.09.24</dd></div>
+                <div className="profile-primary"><dt>血液型</dt><dd>優しい綺麗好きのA型</dd></div>
+                <div><dt>拠点</dt><dd>長野県長野市</dd></div>
+                <div><dt>配偶者</dt><dd>未実装<small>沖縄料理屋店主のヒモ</small></dd></div>
+                <div><dt>仲間</dt><dd>猫1・イモリ2・ドジョウ3</dd></div>
+                <div><dt>燃料</dt><dd>お酒</dd></div>
+                <div><dt>特殊能力</dt><dd>筋トレ・ガヤ</dd></div>
+              </dl>
+            </div>
+          </div>
+
+          <div className={`judge-box ${judgementType ? `judge-${judgementType}` : ""}`} id="oguri-judge">
+            <div className="judge-comparison">
+              <h3 className="judge-comparison-claim">
+                <span className="judge-claim-line">本人は、</span><span className="judge-claim-line"><strong>小栗旬に似ている</strong></span><span className="judge-claim-line judge-claim-tail">と言い張っています。</span>
+              </h3>
+
+              <div className="judge-photo-grid">
+                <figure className="judge-photo-card judge-photo-reimon">
+                  <div className="judge-photo-frame">
+                    <img src="/images/reimon-judge.jpg" alt="青木玲門の比較用写真" />
+                  </div>
+                  <figcaption>
+                    <strong>青木 玲門</strong>
+                    <span>自称・小栗一瞬</span>
+                  </figcaption>
+                </figure>
+
+                <div className="judge-versus" aria-hidden="true">VS</div>
+
+                <figure className="judge-photo-card judge-photo-oguri">
+                  <div className="judge-photo-frame">
+                    <img src="/images/oguri-shun-judge.jpg" alt="小栗旬さんの比較用写真" />
+                  </div>
+                  <figcaption>
+                    <strong>小栗 旬</strong>
+                    <span>本家</span>
+                  </figcaption>
+                </figure>
+              </div>
+
+              <p className="judge-comparison-note">
+                ※メガネ・ヒゲ・顎の角度による印象操作を含みます。
+              </p>
+            </div>
+
+            <div className="judge-question">
+              <div className="judge-question-lead">
+                <b className="judge-final-stamp">最終審議</b>
+                <span>緊急アンケート</span>
+              </div>
+              <h3>レイモンは小栗旬に似ていますか？</h3>
+              <p>あなたの答えを、下の3つから押してください。</p>
+            </div>
+            <div className="judge-buttons" role="group" aria-label="小栗旬に似ているか回答する">
+              <button type="button" aria-pressed={judgementType === "yes"} className={judgementType === "yes" ? "active" : ""} onClick={() => judge("yes")}>
+                <small>回答 01</small><b>{judgementType === "yes" ? "✓ " : ""}似ている</b>
+              </button>
+              <button type="button" aria-pressed={judgementType === "instant"} className={judgementType === "instant" ? "active" : ""} onClick={() => judge("instant")}>
+                <small>回答 02</small><b>{judgementType === "instant" ? "✓ " : ""}一瞬だけ</b>
+              </button>
+              <button type="button" aria-pressed={judgementType === "no"} className={judgementType === "no" ? "active" : ""} onClick={() => judge("no")}>
+                <small>回答 03</small><b>{judgementType === "no" ? "✓ " : ""}異議あり</b>
+              </button>
+            </div>
+            <div className="judge-result" aria-live="polite">
+              <span>{judgementType ? "判定完了！" : "判定結果"}</span>
+              <p key={judgementType ?? "waiting"}>{judgement}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="dark-section abilities-section" id="business">
+          <div className="section-kicker yellow">REIMON&apos;S BUSINESS</div>
+          <h2>
+            で、結局<br />
+            <em>何屋なんだよ？</em>
+          </h2>
+          <p className="ability-intro">
+            会社の「ムダ・採用・見せ方」を、<br />
+            システムとデザインで整える人です。
+          </p>
+          <div className="ability-grid">
+            <article>
+              <span className="service-label">SYSTEM</span>
+              <h3><span className="no-break">業務改善システム</span></h3>
+              <div className="service-image">
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
+                    src: "/images/services/service-business-improvement-system-v4.png",
+                    alt: "無駄な仕事を業務改善システムで整理する青木玲門",
+                    title: "業務改善システム",
+                    episode: "SERVICE",
+                  }, event)}
+                  aria-label="業務改善システムの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-business-improvement-system-v4.png"
+                    alt="無駄な仕事を業務改善システムで整理する青木玲門"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <ZoomHint />
+                </button>
+              </div>
+              <strong className="service-catch">人を増やす前に、まず仕事を減らす。</strong>
+              <p className="service-description">入力・集計・確認・情報共有などのムダな作業をシステム化。少人数でも現場が回る仕組みをつくります。</p>
+              <p className="service-note">新しく人を採用する前に、その仕事自体を減らせないか、一度ご相談ください。</p>
+            </article>
+            <article>
+              <span className="service-label">RECRUIT</span>
+              <h3><span className="no-break">採用ホームページ</span></h3>
+              <div className="service-image">
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
+                    src: "/images/services/service-recruitment-website-v2.png",
+                    alt: "さまざまな職種の青木玲門が登場する採用ホームページ",
+                    title: "採用ホームページ",
+                    episode: "SERVICE",
+                  }, event)}
+                  aria-label="採用ホームページの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-recruitment-website-v2.png"
+                    alt="さまざまな職種の青木玲門が登場する採用ホームページ"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <ZoomHint />
+                </button>
+              </div>
+              <strong className="service-catch">求人票だけでは、御社の魅力は伝わらない。</strong>
+              <p className="service-description">仕事の面白さや社風を引き出し、求職者が「ここで働きたい」とワクワクする採用ホームページをつくります。</p>
+              <p className="service-note">無難なだけの採用サイトは、たぶん作りません。</p>
+            </article>
+            <article>
+              <span className="service-label">BRANDING</span>
+              <h3><span className="no-break">企業ブランディング</span></h3>
+              <div className="service-image">
+                <button
+                  type="button"
+                  className="timeline-image-button"
+                  onPointerDown={handleLightboxPointerDown}
+                  onClick={(event) => handleLightboxClick({
+                    src: "/images/services/service-corporate-branding.png",
+                    alt: "ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング",
+                    title: "企業ブランディング",
+                    episode: "SERVICE",
+                  }, event)}
+                  aria-label="企業ブランディングの画像を拡大表示"
+                >
+                  <Image
+                    src="/images/services/service-corporate-branding.png"
+                    alt="ロゴ・名刺・動画・チラシ・パンフレット・ホームページを統一する企業ブランディング"
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 900px) 100vw, 360px"
+                  />
+                  <ZoomHint />
+                </button>
+              </div>
+              <strong className="service-catch">いい会社なのに、見せ方で損していませんか？</strong>
+              <p className="service-description">ロゴ・パンフレット・プレゼン資料・動画まで、会社らしさを一貫して設計。選ばれ、覚えられる見せ方をつくります。</p>
+              <p className="service-note">爪痕は残します。遺恨は残さないよう努力します。</p>
+            </article>
+          </div>
+          <div className="proof-block">
+            <h3>
+              ふざけていますが、<br />
+              <em>作るものは本気です。</em>
+            </h3>
+            <p>
+              業務の整理から、設計・デザイン・実装まで。<br />
+              提案だけで終わらず、現場で使えるところまで一貫してつくります。
+            </p>
+            <ul className="proof-points">
+              <li>
+                <b>11年超</b>
+                <span>デザイン・Web制作歴</span>
+              </li>
+              <li>
+                <b>一貫対応</b>
+                <span>業務整理から設計・実装まで</span>
+              </li>
+              <li>
+                <b>専用化</b>
+                <span>必要な機能だけをシステム化</span>
+              </li>
+            </ul>
+          </div>
+          <div className="power-meter">
+            <div><span>デザイン</span><i style={{ width: "94%" }} /><b>94</b></div>
+            <div><span>アプリ</span><i style={{ width: "98%" }} /><b>98</b></div>
+            <div><span>筋トレ</span><i style={{ width: "63%" }} /><b>63</b></div>
+            <div><span>変態</span><i className="over" style={{ width: "100%" }} /><b>120</b></div>
+          </div>
+        </section>
+
+        <section className="evolution-section">
+          <span className="next-badge">CURRENT MISSION</span>
+          <h2>
+            <strong>人手不足対策DXアドバイザー</strong>って、
+            <br className="evolution-break" />
+            何をする人？
+          </h2>
+          <p className="evolution-answer">会社のムダを見つけ、整理し、必要なところだけ仕組み化する人です。</p>
+
+          <div className="evolution-works">
+            <article>
+              <span className="evolution-work-no">01</span>
+              <h3>見つける</h3>
+              <p>二重入力・紙・電話・属人化など、会社に残っているムダを見つける。</p>
+            </article>
+            <article>
+              <span className="evolution-work-no">02</span>
+              <h3>減らす</h3>
+              <p>やめる・まとめる・自動化する仕事を整理する。</p>
+            </article>
+            <article>
+              <span className="evolution-work-no">03</span>
+              <h3>つくる</h3>
+              <p>必要な機能だけを、現場で使える仕組みにする。</p>
+            </article>
+          </div>
+
+          <div className="evolution-change">
+            <p className="evolution-change-label">こう変わります</p>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">何度も同じ内容を入力</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">一度の入力で自動集計</span>
+            </div>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">情報が紙・Excel・LINEにバラバラ</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">ひとつの画面でまとめて管理</span>
+            </div>
+            <div className="evolution-change-row">
+              <span className="evolution-change-from">電話で現場の進捗を確認</span>
+              <span className="evolution-change-arrow" aria-hidden="true"></span>
+              <span className="evolution-change-to">いつでも画面で状況を確認</span>
+            </div>
+          </div>
+
+          <p className="evolution-result">人を増やす前に、今いる人数で回りやすい会社へ。</p>
+        </section>
+
+        <section className="paper-section one-to-one" id="handle">
+          <div className="section-kicker">HOW TO HANDLE REIMON</div>
+          <h2>青木玲門の<br /><em>取扱説明書。</em></h2>
+          <div className="one-to-one-grid">
+            <article>
+              <img src="/images/one-to-one-laugh.png" alt="机を叩いて大笑いしている様子" />
+              <h3>とりあえず笑う</h3>
+              <p>最初の3分で一度笑ってもらえると、その後の話がスムーズです。</p>
+            </article>
+            <article>
+              <img src="/images/one-to-one-talk.png" alt="面白い話で相手の目が輝いている様子" />
+              <h3>面白い話を振る</h3>
+              <p>急に目が輝きます。仕事の相談より先に企画が始まる場合があります。</p>
+            </article>
+            <article>
+              <img src="/images/one-to-one-serious.png" alt="真剣に話を聞いてメモを取っている様子" />
+              <h3>とかいって意外と<span className="no-break">真面目</span></h3>
+              <p>会社のお悩みを教えてください。<br />勝手に改善方法を考え始めます。</p>
+            </article>
+          </div>
+          <blockquote>HENTAIは極めたい。<br />でも仕事は、びっくりするほど<span className="no-break">真面目です。</span></blockquote>
+        </section>
+
+        <section className="gains-section character-section" id="character" aria-labelledby="character-title">
+          <div className="gains-heading character-heading">
+            <span>REIMON CHARACTER FILE</span>
+            <h2 id="character-title">青木玲門を構成する<br />5つの危険成分。</h2>
+          </div>
+
+          <nav className="gains-index" aria-label="危険成分の早見表。押すと該当カードへ移動します">
+            {characterFiles.map((file) => (
+              <a
+                key={file.id}
+                href={`#character-${file.id}`}
+                className={`gains-index-item gains-accent-${file.accent}`}
+                aria-label={`${file.japanese}へ移動`}
+              >
+                <span>{file.japanese}</span>
+              </a>
+            ))}
+          </nav>
+
+          <div className="gains-grid">
+            {characterFiles.map((file) => (
+              <article
+                key={file.id}
+                id={`character-${file.id}`}
+                className={`gains-file gains-accent-${file.accent}`}
+              >
+                <header className="gains-file-head">
+                  <div className="gains-file-titles">
+                    <p className="gains-file-en">{file.title}</p>
+                    <h3>{file.japanese}</h3>
+                  </div>
+                  <span className="gains-file-stamp" aria-hidden="true">{file.stamp}</span>
+                </header>
+                <ol className="gains-file-list">
+                  {file.items.map((item, index) => (
+                    <li key={item}>
+                      <span className="gains-file-num" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="gains-file-text">{item}</span>
+                    </li>
+                  ))}
+                </ol>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="paper-section history-section" id="history">
+          <div className="section-kicker">REIMON&apos;S BIOGRAPHY SHEET</div>
+          <h2>すべては今につながる<br /><em>壮大な伏線だった。</em></h2>
+          <div
+            className="timeline-wrap"
+            tabIndex={0}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") {
+                event.preventDefault();
+                goTimeline(timelineIndex === careers.length - 1 ? 0 : timelineIndex + 1);
+              }
+              if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                goTimeline(timelineIndex - 1);
+              }
+            }}
+          >
+          <div
+            className="timeline"
+            ref={timelineTrackRef}
+          >
+            {careers.map((career) => (
+              <article
+                key={career.no}
+                className={`timeline-card${career.current ? " timeline-card-current" : ""}${career.contain ? " timeline-card-image-contain" : ""}`}
+              >
+                <div className="timeline-image">
+                  <button
+                    type="button"
+                    className="timeline-image-button"
+                    onPointerDown={handleLightboxPointerDown}
+                    onClick={(event) => handleLightboxClick({
+                      src: career.src,
+                      alt: career.alt,
+                      title: career.title,
+                      episode: `EPISODE ${career.no}`,
+                    }, event)}
+                    aria-label={`${career.title}の画像を拡大表示`}
+                  >
+                    <img src={career.src} alt={career.alt} loading="lazy" />
+                    <ZoomHint />
+                  </button>
+                  <span className="timeline-place">{career.place}</span>
+                  {career.current && <b className="timeline-stamp">伏線回収中</b>}
+                </div>
+                <div className="timeline-content">
+                  <h3>{career.title}</h3>
+                  <p>{career.note}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="timeline-slider-ui">
+            <div className="timeline-slider-status">
+              <p className="timeline-slider-count timeline-counter" aria-live="polite">
+                <span>{String(timelineIndex + 1).padStart(2, "0")}</span>
+                <span>/</span>
+                <span>{String(careers.length).padStart(2, "0")}</span>
+              </p>
+              <div className="timeline-slider-dots" role="tablist" aria-label="略歴の現在位置">
+                {careers.map((career, index) => (
+                  <button
+                    key={career.no}
+                    type="button"
+                    role="tab"
+                    aria-selected={index === timelineIndex}
+                    className={index === timelineIndex ? "is-active" : ""}
+                    aria-label={`${career.title}へ移動`}
+                    onClick={() => goTimeline(index)}
+                  />
+                ))}
+              </div>
+              <div className="timeline-slider-bar timeline-progress" aria-hidden="true">
+                <span
+                  className="timeline-progress-bar"
+                  style={{
+                    "--timeline-progress": (timelineIndex + 1) / careers.length,
+                  } as CSSProperties}
+                />
+              </div>
+            </div>
+            <div className="timeline-slider-nav">
+              <button
+                type="button"
+                className="timeline-slider-prev timeline-prev"
+                aria-label="前の伏線を見る"
+                disabled={timelineIndex === 0}
+                onClick={() => goTimeline(timelineIndex - 1)}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                className="timeline-slider-next timeline-next"
+                aria-label={timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る"}
+                onClick={() => goTimeline(timelineIndex === careers.length - 1 ? 0 : timelineIndex + 1)}
+              >
+                <span className="timeline-next-label">
+                  {timelineIndex === careers.length - 1 ? "最初から見る" : "次の伏線を見る →"}
+                </span>
+              </button>
+            </div>
+          </div>
+          </div>
+        </section>
+
+        <section className="social-archive" id="social">
+          <div className="section-kicker yellow">REIMON SOCIAL FILES</div>
+          <h2>SNSでは、さらに<br /><em>人格が漏れています。</em></h2>
+          <p className="social-lead">
+            デザイン、動画、ふざけた企画。<br />
+            真面目につくって、だいたい変な方向へ着地した投稿たちです。
+          </p>
+
+          {socialPosts.length === 0 ? (
+            <div className="instagram-invite">
+              <b>@design_reimon</b>
+              <p>
+                デザイン、動画、ふざけた企画を更新中。<br />
+                サイトに載せきれなかった人格は、Instagramで漏れています。
+              </p>
+              <a
+                className="instagram-invite-button"
+                href={INSTAGRAM_PROFILE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagramをのぞいてみる →
+              </a>
+            </div>
+          ) : (
+            <>
+              <p className="social-instagram-source">
+                Instagram　@design_reimon
+              </p>
+
+              {showSocialFilters && (
+                <div className="social-filters" role="group" aria-label="投稿の種類">
+                  {socialFilters.map((filter) => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className={socialFilter === filter.id ? "is-active" : ""}
+                      aria-pressed={socialFilter === filter.id}
+                      onClick={() => setSocialFilter(filter.id)}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {filteredSocialPosts.length > 0 ? (
+                <>
+                  <div className={`social-grid${socialExpanded ? " is-expanded" : ""}`}>
+                    {filteredSocialPosts.map((post, index) => (
+                      <article
+                        key={post.id}
+                        className={`social-card${index >= 6 ? " is-extra" : ""}`}
+                      >
+                        <button
+                          type="button"
+                          className="timeline-image-button social-card-media"
+                          onPointerDown={handleLightboxPointerDown}
+                          onClick={(event) => handleSocialCardClick(post, event)}
+                          aria-label={`${post.title}を拡大表示`}
+                        >
+                          <img
+                            src={post.type === "video" ? post.poster ?? post.src : post.src}
+                            alt=""
+                          />
+                          <span className="social-card-file">FILE {String(index + 1).padStart(2, "0")}</span>
+                          <span className="social-card-type">{post.type === "video" ? "MOVIE" : "IMAGE"}</span>
+                          {post.type === "video" && (
+                            <span className="social-play" aria-hidden="true"><span>▶</span></span>
+                          )}
+                          {post.type === "image" && <ZoomHint />}
+                        </button>
+                        <div className="social-card-body">
+                          <p className="social-card-source">Instagram</p>
+                          <h3>
+                            {post.title.split("\n").map((line) => (
+                              <span key={line}>
+                                {line}
+                                <br />
+                              </span>
+                            ))}
+                          </h3>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  {filteredSocialPosts.length > 6 && (
+                    <button
+                      type="button"
+                      className="social-more"
+                      onClick={() => setSocialExpanded((open) => !open)}
+                    >
+                      {socialExpanded ? "一旦しまう ↑" : "さらに人格を見る ↓"}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="social-empty">この分類の投稿はありません。</p>
+              )}
+
+              <a
+                className="instagram-invite-button social-more-instagram"
+                href={INSTAGRAM_PROFILE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagramでもっと人格を見る →
+              </a>
+            </>
+          )}
+        </section>
+
+        <section className="paper-section" id="audience">
+          <div className="section-kicker">FOR WHOM</div>
+          <h2>こんな会社のムダ、<br /><em>そろそろ減らしませんか？</em></h2>
+          <div className="audience-grid">
+            {audienceCards.map((card, index) => (
+              <article key={card} className="audience-card">
+                <span>TYPE 0{index + 1}</span>
+                <p>
+                  {card.split("\n").map((line) => (
+                    <span key={line}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="contact-section" id="contact">
+          <h2>まずは、会社に残っている<br />ムダ探しから始めます。</h2>
+          <p>
+            システムを作ることが目的ではありません。<br />
+            仕事を見直し、減らせるものを減らし、<br />
+            本当に必要なところだけを仕組み化します。
+          </p>
+          <p className="contact-note">相談だけでも大丈夫です。たぶん噛みつきません。</p>
+        </section>
+
+        <footer>
+          <p>© BORDERLESS / AOKI REIMON</p>
+          <p>このサイトは、青木玲門の公式プロフィールです。<br />たぶん。</p>
+        </footer>
+      </div>
+
+      {lightbox && (
+        <div
+          className="timeline-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label="画像の拡大表示"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeLightbox();
+            }
+          }}
+        >
+          <div className="timeline-lightbox-content">
+            <button
+              type="button"
+              className="timeline-lightbox-close"
+              onClick={closeLightbox}
+              aria-label="拡大画像を閉じる"
+            >
+              ×
+            </button>
+            <img src={lightbox.src} alt={lightbox.alt} />
+            <div className="timeline-lightbox-caption">
+              <span>{lightbox.episode}</span>
+              <strong>{lightbox.title}</strong>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {socialOpenPost && (
+        <div
+          className="timeline-lightbox social-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${socialOpenPost.title}の拡大表示`}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeSocialLightbox();
+            }
+          }}
+        >
+          <div className="timeline-lightbox-content social-lightbox-content">
+            <button
+              type="button"
+              className="timeline-lightbox-close"
+              onClick={closeSocialLightbox}
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+            <p className="social-lightbox-count" aria-live="polite">
+              {String(socialOpenIndex + 1).padStart(2, "0")} / {String(filteredSocialPosts.length).padStart(2, "0")}
+            </p>
+            <div className="social-lightbox-media">
+              {socialOpenPost.type === "video" ? (
+                <video
+                  key={socialOpenPost.id}
+                  ref={socialVideoRef}
+                  controls
+                  playsInline
+                  preload="auto"
+                  poster={socialOpenPost.poster}
+                  src={socialOpenPost.src}
+                >
+                  {socialOpenPost.alt}
+                </video>
+              ) : (
+                <img src={socialOpenPost.src} alt={socialOpenPost.alt} />
+              )}
+            </div>
+            <div className="timeline-lightbox-caption">
+              <span>{socialOpenPost.type === "video" ? "MOVIE" : "IMAGE"}</span>
+              <strong>
+                {socialOpenPost.title.split("\n").map((line) => (
+                  <span key={line}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </strong>
+              {socialOpenPost.instagramUrl && (
+                <a
+                  className="social-lightbox-instagram"
+                  href={socialOpenPost.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Instagramで元の投稿を見る →
+                </a>
+              )}
+            </div>
+            {filteredSocialPosts.length > 1 && (
+              <div className="social-lightbox-nav">
+                <button
+                  type="button"
+                  aria-label="前の投稿"
+                  onClick={() => goSocial(socialOpenIndex - 1)}
+                >
+                  ← 前へ
+                </button>
+                <button
+                  type="button"
+                  aria-label="次の投稿"
+                  onClick={() => goSocial(socialOpenIndex + 1)}
+                >
+                  次へ →
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
