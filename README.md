@@ -26,7 +26,8 @@ npm run dev
 
 ## 主な編集ファイル
 
-- `app/page.tsx` … ページ本体（文章・アンケート・作品切替など）
+- `app/page.tsx` … 一般・商談前向けトップページ
+- `app/bni/page.tsx` … BNI向けページ
 - `app/globals.css` … デザイン・アニメーション
 - `app/layout.tsx` … タイトルなどの全体設定
 - `public/images/` … 画像
